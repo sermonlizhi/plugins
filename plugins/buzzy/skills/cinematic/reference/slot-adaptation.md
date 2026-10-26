@@ -38,5 +38,5 @@ Skip 且无正文 → 该描述槽写 `(none)`。Provide 的成片词原样绑�
 
 ## 音频
 
-本链**没有**独立音频 URL 槽（除非当前 `generate_video` 声明里明确有 `audio_url` / `audio_urls` —— 有才传，没有就不要发明）。  
+本链**没有**独立音频 URL 槽（除非当前 `generate_video` 声明里明确有 `audio_url` / `audio_urls` —— 有才传，没有就不要发明）。
 对白 / Foley / 环境音写进成片词。**禁止**在成片词里写 BGM / background music / scored music。配乐只走 `merge` 闸门。

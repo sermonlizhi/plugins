@@ -16,15 +16,15 @@
 
 ## Spectrum (hyper-stylized → photoreal)
 
-1. Ultra-stylized cartoon — bright primaries, toon shading, 10:1 head ratio  
-2. Soft-shaded stylized — Pixar range, warm 3-point / HDRI  
-3. Painterly / illustrative — brush strokes, watercolor finish  
-4. Stylized realism — real proportions, surreal color or world  
-5. Cel-shaded with depth — outlines + rim + specular  
-6. Low-poly realistic — faceted geo, PBR materials  
-7. Isometric with detail — locked 45°, rich textures  
-8. Cinematic hyperreal — high-poly, GI, pore-level  
-9. Photoreal / digital photography — lens artifacts allowed as look, not a resolution promise  
-10. Hyper-photoreal + impossible physics — real light on surreal forms  
+1. Ultra-stylized cartoon — bright primaries, toon shading, 10:1 head ratio
+2. Soft-shaded stylized — Pixar range, warm 3-point / HDRI
+3. Painterly / illustrative — brush strokes, watercolor finish
+4. Stylized realism — real proportions, surreal color or world
+5. Cel-shaded with depth — outlines + rim + specular
+6. Low-poly realistic — faceted geo, PBR materials
+7. Isometric with detail — locked 45°, rich textures
+8. Cinematic hyperreal — high-poly, GI, pore-level
+9. Photoreal / digital photography — lens artifacts allowed as look, not a resolution promise
+10. Hyper-photoreal + impossible physics — real light on surreal forms
 
 不要写 "photorealistic but stylized" 而不拆层。

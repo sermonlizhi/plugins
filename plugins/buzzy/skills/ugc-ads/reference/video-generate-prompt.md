@@ -1,15 +1,15 @@
 # UGC ADS — 成片正文
 
-每段生成一段**新片子**。agent **按本文件模板直接写出** Prompt，禁止 run_prompt。  
-不要把参考视频当成片输入。媒体**只传 URL 字段**（`image_url` / `image_urls` / `video_url` / `video_urls`，以 tool 声明为准），数量 = 正文里实际出现的 `<<<image_n>>>` / `<<<video_n>>>` 个数。图进 image_*，视频进 video_*。**禁止传 `nodeIds`**。prompt 正文不要写 HTTPS / `@Image` / `@Video`。  
-`title` = `UGC Video {i}`；时长 = 该段 Duration。  
-`generate_video.model` = `<available_models>` Video 表 **Seedance 2.0 Fast** 行的 `model` 列原文。  
+每段生成一段**新片子**。agent **按本文件模板直接写出** Prompt，禁止 run_prompt。
+不要把参考视频当成片输入。媒体**只传 URL 字段**（`image_url` / `image_urls` / `video_url` / `video_urls`，以 tool 声明为准），数量 = 正文里实际出现的 `<<<image_n>>>` / `<<<video_n>>>` 个数。图进 image_*，视频进 video_*。**禁止传 `nodeIds`**。prompt 正文不要写 HTTPS / `@Image` / `@Video`。
+`title` = `UGC Video {i}`；时长 = 该段 Duration。
+`generate_video.model` = `<available_models>` Video 表 **Seedance 2.0 Fast** 行的 `model` 列原文。
 `aspectRatio` / `resolution`：只传该行 `ratios` / `resolutions` 里的 token。`SessionRatio` / `SessionVideoResolution` 在表里就原样用；不在表里 → 该行第一个合法 token（或再问一次）。`ratios=fixed` 或 `resolutions` `-` / 空 → 对应字段整项省略。禁止写死 `720p` / `1080p`。
 
-调度：Video 1 先发，`get_task` 阻塞轮询到成功后同轮发齐 2…N。后续段必须参照 Video 1。  
+调度：Video 1 先发，`get_task` 阻塞轮询到成功后同轮发齐 2…N。后续段必须参照 Video 1。
 **HARD**：每段 `generate_video` 只返回 `task_id`。同一 continuation 必须反复 `get_task` 直到 `TASK_STATE_SUCCEEDED`（PENDING/RUNNING 就继续查；视频通常要数分钟，不要停、不要等用户下一句）。记下素材 URL。Apps widget 不能代替轮询。后续段 `generate_video` 用这些 URL（Video 1 的视频 URL 挂进 `video_url(s)`）。`merge_videos` 挂各段成片 URL，**禁止传 `nodeIds`**。
 
-**禁止**把真实 `@Image …` / `@Video …` 或 URL 写进正文。  
+**禁止**把真实 `@Image …` / `@Video …` 或 URL 写进正文。
 **禁止**只挂节点而不写 Timeline。Timeline 由本段 extract **改写**，禁止整段粘 extract。
 
 ---
@@ -26,7 +26,7 @@
 | 场景图 | 有则挂 | `{{Scene}}` 句式，占位用 `<<<image_n>>>` |
 | Video 1 成片 | 仅 i≥2 | `<<<video_1>>>` |
 
-缺角色 / 场景 → **整行省略**，不要写 `(none)` 或空 `<<<image_n>>>`。  
+缺角色 / 场景 → **整行省略**，不要写 `(none)` 或空 `<<<image_n>>>`。
 无任何产品图且无其它视觉 → 不要硬成片，请用户补图。
 
 有用户声音参考时，在语言句后插入：`The voiceover sound is based on the referenced video.` 并把该视频 URL 挂进 `video_url(s)`。无则整项省略。

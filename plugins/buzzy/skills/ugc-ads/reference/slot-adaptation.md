@@ -17,7 +17,7 @@ provided  →  generated(done)  →  skip 则省略该槽  →  回退到次近�
 
 分镜 / 角色 / 场景模板输入：有 Prompt 正文或用户意图字段就写入；Skip 且无正文 → `(none)`。`SellingPoint` = 卖点分析经对话确认后的全文（用户改了文案则以用户稿为准）；未确认不得用规格提问旧字段凑。有 `CharacterRole` / `VisualTone` / `ExecutionGoal` / 其它问询结论 → 原样追加，供模型遵守。角色 / 场景 Prompt 由 agent 直接写，禁止 `ugc_ads_character_prompt` / `ugc_ads_scene_prompt`。
 
-run_prompt 只挂商品图 URL（有才加；确认消息 / `display_product_info` 图地址）。分镜必含商品图 URL；角色图 / 场景图 / 参考视频 URL **有才加**。缺 Character/Scene Prompt 不阻塞。卖点正文 / brief / Prompt 文本**不是**生成参考。  
+run_prompt 只挂商品图 URL（有才加；确认消息 / `display_product_info` 图地址）。分镜必含商品图 URL；角色图 / 场景图 / 参考视频 URL **有才加**。缺 Character/Scene Prompt 不阻塞。卖点正文 / brief / Prompt 文本**不是**生成参考。
 所有生成 / 合成的参考都用确认消息、Provide、或 `get_task` 成功后的素材 URL。`merge_videos` 挂各段成片 URL。
 
 ## 视觉槽
@@ -29,7 +29,7 @@ run_prompt 只挂商品图 URL（有才加；确认消息 / `display_product_inf
 3. 产品主图
 4. 场景参考（上传或成图）
 
-首帧（阶段未 skip 时）按「角色 → 产品 → 场景」组 1–3 个槽，agent 按 `first-frame-prompt.md` 直接写 Prompt。角色图 / 场景图 / 首帧 `model` = `<available_models>` Image 表 **Nano Banana 2** 行的 `model` 列原文。  
+首帧（阶段未 skip 时）按「角色 → 产品 → 场景」组 1–3 个槽，agent 按 `first-frame-prompt.md` 直接写 Prompt。角色图 / 场景图 / 首帧 `model` = `<available_models>` Image 表 **Nano Banana 2** 行的 `model` 列原文。
 成片挂载：该段首帧（有则挂，正文不要写 first frame）→ 产品主图 → 角色图（有才加）→ 场景图（有才加）。Video i≥2 另挂 Video 1 成片为 `<<<video_1>>>`。`generate_video.model` = Video 表 **Seedance 2.0 Fast** 行的 `model` 列原文；画幅 / 分辨率按 SKILL §运行时填参收敛。模板见 `video-generate-prompt.md`。
 
 连产品图都没有 → 不要硬生成首帧 / 成片；请用户补商品图或任意可用参考。

@@ -2,7 +2,7 @@
 
 成片词只写**画内声**。配乐不写进 `generate_video.prompt`，只走 `merge` 闸门。
 
-禁止：`BGM` / `background music` / `scored music` / `orchestral score` / `music bed` / `music crescendo`。  
+禁止：`BGM` / `background music` / `scored music` / `orchestral score` / `music bed` / `music crescendo`。
 必须：词末 `no background music`。
 
 ## Ambient（环境底）
@@ -35,5 +35,5 @@
 
 ## 用户若上传了音频
 
-当前 `generate_video` 声明里**有** `audio_url` / `audio_urls` → 把真实 URL 传进去，词里用 `<<<` 对应占位（若 schema 要求）并写清这是对白 / 音效，不是配乐。  
+当前 `generate_video` 声明里**有** `audio_url` / `audio_urls` → 把真实 URL 传进去，词里用 `<<<` 对应占位（若 schema 要求）并写清这是对白 / 音效，不是配乐。
 声明里**没有** → 不要发明字段；把对白 / 音效写成文字时间戳。用户要的配乐仍然只走 merge。

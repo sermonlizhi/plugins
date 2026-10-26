@@ -1,20 +1,20 @@
 # TVC ADS — 计划（内存）与开场视觉
 
-`plan` 是内部阶段：用户离开 script 等待提问（或 FastForward）之后才跑。产物不进 Chat。  
+`plan` 是内部阶段：用户离开 script 等待提问（或 FastForward）之后才跑。产物不进 Chat。
 `opening_visual` 是用户可见阶段：有参考 = 分段预览图；无参考 = 分段首帧。
 
 下文所有 `tvc_ads_*` 名称都是模板 key；调用时使用 `run_prompt(prompt_key=对应 key, instruction=本阶段输入, projectId=项目 id)`。
 
 Preview Prompt 仅在有参考视频模式由 agent 按对应 reference 直接写出；无参考模式的首帧 Prompt **必须**调用 `tvc_ads_first_frame_prompt` 生成。禁止调用 `tvc_ads_master_first_frame_prompt`，也禁止采用计划返回的 `preview_prompt`。Prompt 不进 Chat。
 
-角色图 / Preview / 首帧的 `generate_image.model` = `<available_models>` Image 表 **gpt image2** 行的 `model` 列原文（`name` 只用来找行）。  
+角色图 / Preview / 首帧的 `generate_image.model` = `<available_models>` Image 表 **gpt image2** 行的 `model` 列原文（`name` 只用来找行）。
 **HARD**：每张 `generate_image` 只返回 `task_id`。同一 continuation 必须反复 `get_task` 直到 `TASK_STATE_SUCCEEDED`（PENDING/RUNNING 就继续查，不要停、不要等用户），记下素材 URL。并发 ×N 时每个 `task_id` 都要轮询到终态。Apps widget 不能代替轮询。后续成片用这些 URL，禁止把 `node_id` 当素材入参。
 
 ---
 
 ## Shot ≠ Segment（HARD — 进入开场视觉 / 成片前必须过）
 
-分镜表一行 = **shot**。Chat 卡片也按镜展示。这两件事**不是**成片单元。  
+分镜表一行 = **shot**。Chat 卡片也按镜展示。这两件事**不是**成片单元。
 `opening_visual` / `video` 的单元只能是 `plan` 留下的 **segment**。`N` = `SegmentCount`，不是表行数，也不是卡片数。
 
 | 禁止 | 必须 |
@@ -80,16 +80,16 @@ Global Voice Profile (frozen from storyboard output; reuse verbatim in every vid
 Audio policy: generate only the spoken voice, real environmental sound, physical foley, natural room tone, and silence. Never generate BGM, score, melody, harmony, rhythm, tonal pad, music bed, or electronic emotional sound effects.
 ```
 
-参考：参考视频 URL + 商品图 URL。走 `image_url(s)` / `video_url(s)`。**禁止传 `nodeIds`**。  
-成功：读 `script_plan`（object）。写入内存：`SegmentCount`、每段 `script_segment` / `segment_duration` / `character_index`、全片统一 `VoiceProfile`（优先使用 storyboard 返回并已冻结的顶层 `voice_profile`；若为空才从脚本中整理）。**若 `CharacterVisualPlan=skip` 或 `provided`，Existing Character Prompts 必须写 `(none)` 或只写已提供角色图对应的冻结条目；不得因为计划返回 `character_index` 而重新生成被跳过的角色图。** 丢弃返回里的 `preview_prompt`。人物图必须在前一阶段已完成：若有参考分镜返回非空 `character_prompts` 且 `CharacterVisualPlan=run`，必须先生成并等待全部 `Character {i}` `get_task` 终态，再进入本计划；本阶段不得以未生成角色图为理由继续。  
-禁止把计划正文贴进 Chat。禁止用返回里的 `character_prompts` 覆盖 script 阶段已冻结的角色。  
+参考：参考视频 URL + 商品图 URL。走 `image_url(s)` / `video_url(s)`。**禁止传 `nodeIds`**。
+成功：读 `script_plan`（object）。写入内存：`SegmentCount`、每段 `script_segment` / `segment_duration` / `character_index`、全片统一 `VoiceProfile`（优先使用 storyboard 返回并已冻结的顶层 `voice_profile`；若为空才从脚本中整理）。**若 `CharacterVisualPlan=skip` 或 `provided`，Existing Character Prompts 必须写 `(none)` 或只写已提供角色图对应的冻结条目；不得因为计划返回 `character_index` 而重新生成被跳过的角色图。** 丢弃返回里的 `preview_prompt`。人物图必须在前一阶段已完成：若有参考分镜返回非空 `character_prompts` 且 `CharacterVisualPlan=run`，必须先生成并等待全部 `Character {i}` `get_task` 终态，再进入本计划；本阶段不得以未生成角色图为理由继续。
+禁止把计划正文贴进 Chat。禁止用返回里的 `character_prompts` 覆盖 script 阶段已冻结的角色。
 `character_index` 从 0 对齐已冻结角色图；无角色则必须为空。返回后必须先过 §Shot ≠ Segment 的进入前校验；未过 → 先本地重切，仍过不了再重跑本计划，不要重做分镜 / 角色图，也不要按镜出预览。
 
 ### Preview Prompt（agent 写）
 
 计划通过（含本地重切后的冻结 `SegmentCount`）后，若 `opening_visual` 仍 enabled → agent 按每段 `script_segment` **直接**写一条 `PreviewPrompts[i]`，再同轮成预览图。条数必须等于**合并后的** `SegmentCount`，禁止按 shot 行数出图。对不上 → 只重写 Prompt，不要重跑计划。`opening_visual=skip` → 不写 Preview Prompt，不出预览图，分段通过后进 `video`。
 
-每条是**单帧**画面描述（English）：先明确要求以附带主产品图作为精确视觉身份参考，再写该段主画面构图、目标商品状态、角色（有则与已冻结 `CharacterPrompts` 一致）、场景与光线气氛。必须说明保留产品轮廓、比例、包装几何、颜色、材质、标签布局与可见品牌标记。禁止分镜表格式、禁止镜号 / 时间轴 / 台词栏。不进 Chat。  
+每条是**单帧**画面描述（English）：先明确要求以附带主产品图作为精确视觉身份参考，再写该段主画面构图、目标商品状态、角色（有则与已冻结 `CharacterPrompts` 一致）、场景与光线气氛。必须说明保留产品轮廓、比例、包装几何、颜色、材质、标签布局与可见品牌标记。禁止分镜表格式、禁止镜号 / 时间轴 / 台词栏。不进 Chat。
 参考 URL 有才加入：产品主图 + 角色图。Prompt 必须用对应的 `<<<image_n>>>` 标明角色。不要挂分镜表。**禁止传 `nodeIds`**。
 
 预览图：
@@ -132,7 +132,7 @@ config_duration:{SessionVideoDuration}
 user_language:English
 ```
 
-参考：商品图 URL。走 `image_url(s)`，有才加。**禁止传 `nodeIds`**。  
+参考：商品图 URL。走 `image_url(s)`，有才加。**禁止传 `nodeIds`**。
 失败 → 重跑 Master 视频提示词 + 拆段 + 进入前校验，不要直接出图。run_prompt 不与 `generate_image / generate_video` 同拍并行。
 
 ### 拆 `MasterVideoPrompt`（纯文本）

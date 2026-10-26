@@ -23,15 +23,15 @@ allowed-tools: |
 
 # TVC Ads Orchestrator
 
-本链自包含。查阅本 skill 文件只用完整前缀 `skills/tvc-ads/reference/`。  
+本链自包含。查阅本 skill 文件只用完整前缀 `skills/tvc-ads/reference/`。
 **怎么调平台能力、填哪些参数，对照各 tool 自己的声明**；本文件只写目的、产物和硬底线。
 
-**HARD — allowed-tools 分类**：`Buzzy MCP tools` 是本 MCP 服务注册的平台 tool，经 Buzzy MCP `tools/call`。`Host tools — not part of this MCP server` 是宿主内置提问 tool，**不是** Buzzy MCP tool，也不走 `load_workflow` / ExecuteTools。Cursor 用 `AskQuestion`，Claude 用 `AskUserQuestion` / `ask_question`，Codex 用同类。选择题必须调 Host tools 里当前可用的那个，禁止因为「不在 Buzzy MCP tools 列表里」就改成编号纯文本。  
+**HARD — allowed-tools 分类**：`Buzzy MCP tools` 是本 MCP 服务注册的平台 tool，经 Buzzy MCP `tools/call`。`Host tools — not part of this MCP server` 是宿主内置提问 tool，**不是** Buzzy MCP tool，也不走 `load_workflow` / ExecuteTools。Cursor 用 `AskQuestion`，Claude 用 `AskUserQuestion` / `ask_question`，Codex 用同类。选择题必须调 Host tools 里当前可用的那个，禁止因为「不在 Buzzy MCP tools 列表里」就改成编号纯文本。
 **HARD — create_project**：进入任何需要 `projectId` / `project_id` 的 Buzzy MCP tool 之前，必须先调 `create_project` 拿到真实 id。本会话只创建一次，后续全程复用。workflow tool（`parse_product_info` / `display_product_info` / run_prompt / `merge_videos`）传 `projectId`；`generate_image` / `generate_video` 传 `project_id`。禁止编造 id，禁止省略，禁止因为 generate_image / generate_video 写了「可自动建项目」就跳过。`create_project` 的入参是 `name`（可读项目名），不要把 catalog 的 `name` 或 `workflow` 抄过来。Host tools 开场问询那一拍仍禁止同拍调 `create_project`；问询完成（或 `IntentQuestions=false`）后、进 `product` 的第一拍若还没有 id，必须先 `create_project`。Jump / FastForward 到更后阶段同此：还没有 id 就先创建，再调带项目字段的 tool。
 
-**HARD — 宿主提问**：等人选择或确认时（**卖点分析、Apps 商品控件确认除外**），必须对 Host tools 里当前可用名字真调用一次。选项只进提问 tool 的 `options`。禁止用 `1.` `2.` `3.` 编号列表、bullet、`Recommended:` 前缀段落作为用户可见选项——那样写 = 本步失败，必须立刻改成真调用。assistant 正文最多一句问句或状态句，**不要复述选项**。不要自己造第 4 个 `Other` 选项：Cursor `AskQuestion` 自带 Other 自由输入。仅当 `tools/list` 里 `AskQuestion` / `ask_question` / `AskUserQuestion` 三个名字都没有时，才允许编号列表，并写明本宿主没有选择框。Cursor 有 `AskQuestion`，禁止走这条。媒体产物就绪只用 assistant 正文状态句。伪调用或编号列表都算没发出提问。  
-**例外 — 商品确认**：`parse_product_info` 打开编辑控件。有产品页 URL 则传 `productLink`；没有则**不要编造链接、不要传 `productLink`**，打开空表。返回值（即使带 Title / Description / Images）只表示控件已打开，**不是**确认。然后**停住**，等用户确认。确认信号（任一即可）：消息含 `Confirmed Product Info`；或用户明确确认/继续该商品（`Confirm` / `Continue` / `looks good` / 确认 / 继续）。在此之前禁止 `display_product_info`，禁止 Host tools 问要不要继续。无 iframe 宿主才用 Host tools 收集标题/描述/图。  
-**例外 — 卖点分析**：不走 Host tools。run_prompt 返回后按 `selling-analysis-prompt.md` 贴三段：固定引导句 `Here are the product selling points:` + `content` 原文 markdown + 固定确认句 `Confirm to continue, or tell me what you'd like to change.`，然后停住等用户下一条自由回复。禁止只贴正文、不说明这是商品卖点。用户回复 `ok` / `continue` / `looks good` / `confirm` / 确认 / 继续 = **已确认**，必须进入 `info_card`。  
+**HARD — 宿主提问**：等人选择或确认时（**卖点分析、Apps 商品控件确认除外**），必须对 Host tools 里当前可用名字真调用一次。选项只进提问 tool 的 `options`。禁止用 `1.` `2.` `3.` 编号列表、bullet、`Recommended:` 前缀段落作为用户可见选项——那样写 = 本步失败，必须立刻改成真调用。assistant 正文最多一句问句或状态句，**不要复述选项**。不要自己造第 4 个 `Other` 选项：Cursor `AskQuestion` 自带 Other 自由输入。仅当 `tools/list` 里 `AskQuestion` / `ask_question` / `AskUserQuestion` 三个名字都没有时，才允许编号列表，并写明本宿主没有选择框。Cursor 有 `AskQuestion`，禁止走这条。媒体产物就绪只用 assistant 正文状态句。伪调用或编号列表都算没发出提问。
+**例外 — 商品确认**：`parse_product_info` 打开编辑控件。有产品页 URL 则传 `productLink`；没有则**不要编造链接、不要传 `productLink`**，打开空表。返回值（即使带 Title / Description / Images）只表示控件已打开，**不是**确认。然后**停住**，等用户确认。确认信号（任一即可）：消息含 `Confirmed Product Info`；或用户明确确认/继续该商品（`Confirm` / `Continue` / `looks good` / 确认 / 继续）。在此之前禁止 `display_product_info`，禁止 Host tools 问要不要继续。无 iframe 宿主才用 Host tools 收集标题/描述/图。
+**例外 — 卖点分析**：不走 Host tools。run_prompt 返回后按 `selling-analysis-prompt.md` 贴三段：固定引导句 `Here are the product selling points:` + `content` 原文 markdown + 固定确认句 `Confirm to continue, or tell me what you'd like to change.`，然后停住等用户下一条自由回复。禁止只贴正文、不说明这是商品卖点。用户回复 `ok` / `continue` / `looks good` / `confirm` / 确认 / 继续 = **已确认**，必须进入 `info_card`。
 **例外 — run_prompt `content`**：卖点正文必须原文贴进对话（禁止 code fence），不受「正文最多一句」限制。分镜 `content` 是 GFM 管道表；Chat **禁止**贴 `|` 管道表，必须按 `script-table-format.md` 转成分镜卡片。卡片贴完后仍发 Host tools Continue/Revise。
 
 | 何时读 | 文件 |
@@ -47,13 +47,13 @@ allowed-tools: |
 | 声音身份、口播表演、混音层级与验收 | `voice-direction.md` |
 | 分段成片 / BGM 合成 | `video-generate-prompt.md` |
 
-`run_prompt` 可用的 `prompt_key`：`tvc_ads_selling_analysis` / `tvc_ads_storyboard_with_ref` / `tvc_ads_script_plan` / `tvc_ads_storyboard_no_ref` / `tvc_ads_master_video_prompt` / `tvc_ads_first_frame_prompt`。按当前阶段选择 key。下文提到调用模板 key 时，实际工具均为 `run_prompt(prompt_key=该 key, instruction=本阶段输入, projectId=项目 id)`。  
+`run_prompt` 可用的 `prompt_key`：`tvc_ads_selling_analysis` / `tvc_ads_storyboard_with_ref` / `tvc_ads_script_plan` / `tvc_ads_storyboard_no_ref` / `tvc_ads_master_video_prompt` / `tvc_ads_first_frame_prompt`。按当前阶段选择 key。下文提到调用模板 key 时，实际工具均为 `run_prompt(prompt_key=该 key, instruction=本阶段输入, projectId=项目 id)`。
 Preview Prompt **由 agent 按对应 reference 直接写出**，禁止再调 run_prompt（或其它单独 tool）获取。无参考模式的首帧 Prompt **必须**调用 `tvc_ads_first_frame_prompt` 生成，禁止 agent 自由改写；角色图 Prompt **只从 script 步**（有参考分镜返回的 `character_prompts`）逐字取，禁止 agent 另写、禁止再调单独 tool 获取。禁止短路径、读其它 skill、把 YAML 当自由 prompt。禁止调用 `tvc_ads_search_keywords` / `tvc_ads_master_first_frame_prompt`。禁止搜片。
 
-用户可见文案 **固定 English**。分镜表、卖点正文、规格提问、方向选择、口播单元格一律 English。run_prompt 的卖点 `content` **必须**作为 markdown 贴进对话（禁止只写一句 status、禁止 code fence）。分镜 `content` 是 GFM 管道表；对话必须转成分镜卡片，**禁止**把该表贴进 Chat。  
-参考素材**一律走 URL 字段**（`image_url` / `image_urls` / `video_url` / `video_urls`，以各 tool 声明为准），适用于 `generate_image` / `generate_video` / run_prompt / `merge_videos`。**禁止传 `nodeIds`**。卖点正文 / 分镜正文 / Prompt 文本不是生成参考；生成参考用产品主图 URL、角色图 URL、开场视觉 URL、用户 Provide 的媒体 URL。  
-角色图 / Preview / 首帧的 `generate_image.model` = `<available_models>` Image 表 **gpt image2** 行的 `model` 列原文（`name` 只用来找行；禁止把 `gpt image2` 别名、视频行、其它图片行写入）。  
-成片的 `generate_video.model` = `<available_models>` Video 表 **seedance-2.0-fast** 行的 `model` 列原文（`name` 只用来找行；禁止把 `seedance-2.0-fast` 简称、图片行、其它视频行写入）。填参细则见 §运行时填参。  
+用户可见文案 **固定 English**。分镜表、卖点正文、规格提问、方向选择、口播单元格一律 English。run_prompt 的卖点 `content` **必须**作为 markdown 贴进对话（禁止只写一句 status、禁止 code fence）。分镜 `content` 是 GFM 管道表；对话必须转成分镜卡片，**禁止**把该表贴进 Chat。
+参考素材**一律走 URL 字段**（`image_url` / `image_urls` / `video_url` / `video_urls`，以各 tool 声明为准），适用于 `generate_image` / `generate_video` / run_prompt / `merge_videos`。**禁止传 `nodeIds`**。卖点正文 / 分镜正文 / Prompt 文本不是生成参考；生成参考用产品主图 URL、角色图 URL、开场视觉 URL、用户 Provide 的媒体 URL。
+角色图 / Preview / 首帧的 `generate_image.model` = `<available_models>` Image 表 **gpt image2** 行的 `model` 列原文（`name` 只用来找行；禁止把 `gpt image2` 别名、视频行、其它图片行写入）。
+成片的 `generate_video.model` = `<available_models>` Video 表 **seedance-2.0-fast** 行的 `model` 列原文（`name` 只用来找行；禁止把 `seedance-2.0-fast` 简称、图片行、其它视频行写入）。填参细则见 §运行时填参。
 产物 `title` **禁止方括号**。统一用无括号名：确认后的商品名、`Selling Point Analysis`、`Storyboard Table`、`Character {i}`、`Preview - Clip {i}`、`First Frame - Clip {i}`、`TVC Clip {i}`。
 
 **HARD — generate_image / generate_video 阻塞轮询**：`generate_image` / `generate_video` 只返回 `task_id`，**不算完成**。同一 continuation 必须立刻反复调用 `get_task(task_id)`，直到终态：`TASK_STATE_PENDING` / `TASK_STATE_RUNNING` → 继续 `get_task`（禁止停住、禁止等用户下一句、禁止只写「生成中」就结束、禁止发下一阶段提问）；`TASK_STATE_SUCCEEDED` → 记下返回里的**素材 URL**（`url` / `image_url` / `video_url` 以返回为准），本段才算完成；失败态 → 说明失败，禁止当成功、禁止再叠一次 generate_image / generate_video。并发提交的多个 `task_id` 必须全部轮询到终态后才能 Advance。Apps widget 只展示进度，**不能**代替 `get_task`。禁止因为「控件会自己轮询」而跳过。后续 `generate_image` / `generate_video` / run_prompt / `merge_videos` 都用这些 URL，**禁止**把 `node_id` 当素材入参。
@@ -124,7 +124,7 @@ run_prompt **禁止**与 `generate_image` / `generate_video` 同拍并行。该�
 
 ### 含糊 / 纯确认
 
-**只**适用于已发出且仍有效的 **Host tools** 提问：`nice` / 无可执行新指令 → 重发同一提问，不要 Advance。  
+**只**适用于已发出且仍有效的 **Host tools** 提问：`nice` / 无可执行新指令 → 重发同一提问，不要 Advance。
 **不适用**于卖点三段、也不适用于商品控件确认。这两处 `ok` / `continue` / `looks good` / `confirm` / 确认 / 继续 = **已确认**，必须 Advance。
 
 ---
@@ -162,10 +162,10 @@ intent → product → selling_analysis → ref_video → info_card → script �
 | `video` | 必跑才能成片 | 分段成片 | 按合并后的段出片，禁止一镜一段。不要把用户参考片当成片 |
 | `merge` | 有分段成片则跑 | 成片（原生人声与真实环境音，可选叠加配乐） | 合成前先问是否加配乐，按选择合成；N=1 仍可配乐 |
 
-每阶段状态：`pending` | `run` | `skip` | `provided` | `done` | `invalidated`。  
-**enabled** = 不是 `skip`，且（`pending`/`run`/`invalidated` 需要执行，或 `provided` 只需绑定不再生成）。  
-角色图不是独立阶段，另维护 `CharacterVisualPlan = run | skip | provided`：正常有参考模式初始为 `run`；用户 Skip 角色或 Jump 越过 script 且未点名保留角色图时设为 `skip`；用户 Provide 角色图时设为 `provided`。只有 `CharacterVisualPlan=run` 才可按 `character_prompts` 生成角色图。  
-`video` 另维护两个声音状态：`Clip1Status` 与 `Clip1AudioReference`。`Clip1Status` 必须先到 `done`，后续 Clip 2…N 才能启动；`Clip1AudioReference` 优先保存平台实际返回的独立旁白音频 / 声音参考资产（URL）。若能力声明明确没有独立音频参考槽，则立即写入 `fallback: VoiceProfile + Clip 1 matching instruction`，不得无限等待，也不把 Clip 1 视频 URL 冒充音频参考。只有平台已声明支持且资产处于绑定处理中时，才允许等待绑定结果。  
+每阶段状态：`pending` | `run` | `skip` | `provided` | `done` | `invalidated`。
+**enabled** = 不是 `skip`，且（`pending`/`run`/`invalidated` 需要执行，或 `provided` 只需绑定不再生成）。
+角色图不是独立阶段，另维护 `CharacterVisualPlan = run | skip | provided`：正常有参考模式初始为 `run`；用户 Skip 角色或 Jump 越过 script 且未点名保留角色图时设为 `skip`；用户 Provide 角色图时设为 `provided`。只有 `CharacterVisualPlan=run` 才可按 `character_prompts` 生成角色图。
+`video` 另维护两个声音状态：`Clip1Status` 与 `Clip1AudioReference`。`Clip1Status` 必须先到 `done`，后续 Clip 2…N 才能启动；`Clip1AudioReference` 优先保存平台实际返回的独立旁白音频 / 声音参考资产（URL）。若能力声明明确没有独立音频参考槽，则立即写入 `fallback: VoiceProfile + Clip 1 matching instruction`，不得无限等待，也不把 Clip 1 视频 URL 冒充音频参考。只有平台已声明支持且资产处于绑定处理中时，才允许等待绑定结果。
 `ref_video` 开场默认 **`skip`**。用户自带视频则 Provide。禁止把默认 skip 理解成还要再问搜片卡。**继续禁止搜片。**
 
 Jump 分类直接读上表：说明里写「可选」的是可选可见；写「无 / 纯内存 / 内部」的是内部；卖点分析等待 / 规格提问是闸门。`intent` 在 `IntentQuestions=true` 时必须先问完，不是 Jump 可跳过闸门。不要再为某条跳转另写规则。
@@ -256,11 +256,11 @@ Jump 分类直接读上表：说明里写「可选」的是可选可见；写「
 6. 卖点已确认、规格未齐、且 §info_card 尚未对 Host tools 真发出（Chat 编号单值 / 只写一档 / 画幅或分辨率少选项不算）：同轮按 §info_card 字面量发出三题（时长恰好 3 档 `<15s` / `15s-30s` / `30s-1min`，画幅恰好 4 档、分辨率恰好 3 档），然后停住。禁止进 `script` / `generate_image`
 7. 调用平台能力，产出下一件产物或下一轮宿主提问（仅当 1–6 都不适用）
 
-禁止空回复且无任何能力调用、也无宿主提问、也未贴出卖点正文、也未打开商品控件——**但**开场问询 / 其它 Host tools 题已经发出、用户尚未作答时，**停住且不再调任何 tool 是正确终点**（不要为了避开「空回复」去调 `parse_product_info`）。伪调用文本已写出但没有真调用 → 重发真调用。  
-能力返回后的 continuation 必须 Advance，不需要用户再发一句——**例外（必须停住）**：① Host tools 开场问询 / 规格提问 / BGM 提问已发出、用户尚未作答，且本句**不是**算子；② `parse_product_info` 返回只表示控件已打开，不要 Advance 到 `display_product_info`。用户本句已识别为 Jump / Skip / Provide / Rollback / Reroute → 不要停在旧等待上。Advance 碰到用户可见产物且非 FastForward 时发等待并**停住**（Rollback 重做后同此）。卖点等待 = 引导句 + markdown + 确认句，不是 Host tools。  
-贴过卖点正文 **不是** 已确认：run_prompt 已返回但本会话还没按 `selling-analysis-prompt.md` 贴出三段 → 立刻贴三段并停住，禁止只写 status、禁止只贴 `content` 不说明这是卖点、禁止空结束。  
-分镜卡片已贴 **不是** 已确认：run_prompt（及该跑的角色图）已返回但本会话还没按 `script-table-format.md` 贴卡片 + Host tools Continue/Revise → 立刻贴卡片并发提问，禁止空结束、禁止同轮 `plan`。  
-缺必填输入 → 问清楚（一题宿主提问），不要空转。  
+禁止空回复且无任何能力调用、也无宿主提问、也未贴出卖点正文、也未打开商品控件——**但**开场问询 / 其它 Host tools 题已经发出、用户尚未作答时，**停住且不再调任何 tool 是正确终点**（不要为了避开「空回复」去调 `parse_product_info`）。伪调用文本已写出但没有真调用 → 重发真调用。
+能力返回后的 continuation 必须 Advance，不需要用户再发一句——**例外（必须停住）**：① Host tools 开场问询 / 规格提问 / BGM 提问已发出、用户尚未作答，且本句**不是**算子；② `parse_product_info` 返回只表示控件已打开，不要 Advance 到 `display_product_info`。用户本句已识别为 Jump / Skip / Provide / Rollback / Reroute → 不要停在旧等待上。Advance 碰到用户可见产物且非 FastForward 时发等待并**停住**（Rollback 重做后同此）。卖点等待 = 引导句 + markdown + 确认句，不是 Host tools。
+贴过卖点正文 **不是** 已确认：run_prompt 已返回但本会话还没按 `selling-analysis-prompt.md` 贴出三段 → 立刻贴三段并停住，禁止只写 status、禁止只贴 `content` 不说明这是卖点、禁止空结束。
+分镜卡片已贴 **不是** 已确认：run_prompt（及该跑的角色图）已返回但本会话还没按 `script-table-format.md` 贴卡片 + Host tools Continue/Revise → 立刻贴卡片并发提问，禁止空结束、禁止同轮 `plan`。
+缺必填输入 → 问清楚（一题宿主提问），不要空转。
 阶段被 Skip / 已 Provided → **同轮或同一次 continuation** 进入下一 enabled 阶段。
 
 ---
@@ -275,9 +275,9 @@ Jump 分类直接读上表：说明里写「可选」的是可选可见；写「
 - 普通模式（含 Rollback 重做后）且该阶段有用户可见产物、且不在 FastForward 中 → 按 §双通道文案发等待提问（主路径 = 下一 enabled 阶段），**停住**
 - FastForward 中 → 不发中间等待提问，继续直到 Jump 的目标 T
 
-过渡态（`display_product_info` 刚跑完 / 卖点等待刚被确认）**禁止停驻**。`video` 的 Clip 1 成功后属于内部依赖续跑：若能力支持独立音频参考槽则绑定 `Clip1AudioReference`，若明确不支持则立即采用 fallback，然后自动启动 Clip 2…N；不得等待用户、重复生成 Clip 1 或把它误判为流程结束。只有平台已声明支持且音频资产仍处于异步绑定处理中时，才允许短暂等待该能力结果。`parse_product_info` 刚返回 **必须停驻**，不是过渡态。Host tools 开场问询刚发出、用户尚未作答 **必须停驻**，不是过渡态，禁止 Advance 到 `product`。  
-**商品确认后的同一 continuation（HARD）**：先 `display_product_info`（该次确认最多一次；无链接有图路径若未走控件则跳过 display_product_info）→ 立刻 `selling_analysis`（run_prompt + 贴三段）→ 停住。禁止在 display_product_info 之前跑卖点。禁止只 display_product_info 就结束。卖点「尚未跑完」= 本会话还没贴出三段。未在 Jump 越过时禁止先出规格提问。卖点分析普通模式：run_prompt 返回后**同一 continuation** 必须按 `selling-analysis-prompt.md` 贴出三段，然后**停住**（只写 status、只贴 `content` 不说明这是卖点、或调 Host tools Continue/Revise = 本步失败）。用户从该等待确认后、规格未齐 → 立刻进入 `info_card`。`ref_video` 默认 skip，**不要**在卖点后插入搜片提问。  
-script 普通模式：分镜 run_prompt（及该跑的角色图 `get_task` 终态）返回后**同一 continuation** 必须贴分镜卡片 + Host tools，然后**停住**（表已返回但没卡片 / 没提问 = 仍是过渡态）。  
+过渡态（`display_product_info` 刚跑完 / 卖点等待刚被确认）**禁止停驻**。`video` 的 Clip 1 成功后属于内部依赖续跑：若能力支持独立音频参考槽则绑定 `Clip1AudioReference`，若明确不支持则立即采用 fallback，然后自动启动 Clip 2…N；不得等待用户、重复生成 Clip 1 或把它误判为流程结束。只有平台已声明支持且音频资产仍处于异步绑定处理中时，才允许短暂等待该能力结果。`parse_product_info` 刚返回 **必须停驻**，不是过渡态。Host tools 开场问询刚发出、用户尚未作答 **必须停驻**，不是过渡态，禁止 Advance 到 `product`。
+**商品确认后的同一 continuation（HARD）**：先 `display_product_info`（该次确认最多一次；无链接有图路径若未走控件则跳过 display_product_info）→ 立刻 `selling_analysis`（run_prompt + 贴三段）→ 停住。禁止在 display_product_info 之前跑卖点。禁止只 display_product_info 就结束。卖点「尚未跑完」= 本会话还没贴出三段。未在 Jump 越过时禁止先出规格提问。卖点分析普通模式：run_prompt 返回后**同一 continuation** 必须按 `selling-analysis-prompt.md` 贴出三段，然后**停住**（只写 status、只贴 `content` 不说明这是卖点、或调 Host tools Continue/Revise = 本步失败）。用户从该等待确认后、规格未齐 → 立刻进入 `info_card`。`ref_video` 默认 skip，**不要**在卖点后插入搜片提问。
+script 普通模式：分镜 run_prompt（及该跑的角色图 `get_task` 终态）返回后**同一 continuation** 必须贴分镜卡片 + Host tools，然后**停住**（表已返回但没卡片 / 没提问 = 仍是过渡态）。
 正在 Jump 越过这些闸门 / 可选阶段 → 按 §Jump 写入默认或 Skip，不要被本段拦截，也不要被「script 必须停住出首帧」拦截。问询未完成或商品控件未确认时，Jump 也不得越过这两道等待。Jump(`video`) 且 `opening_visual` 已被 Skip 时：`plan` 只做分段，禁止出预览 / 首帧。
 
 ---
@@ -317,7 +317,7 @@ script 普通模式：分镜 run_prompt（及该跑的角色图 `get_task` 终�
 
 ## 阶段目的（该跑时才读对应 reference）
 
-链隔离：`TvcAdsActive` 为真时只按本文件。启动：`/tvc-ads`、TVC / brand commercial / studio-quality branding ad、跳步 / 自供 / 回退式 TVC，或本链已有入口 / 问询 / 相位。  
+链隔离：`TvcAdsActive` 为真时只按本文件。启动：`/tvc-ads`、TVC / brand commercial / studio-quality branding ad、跳步 / 自供 / 回退式 TVC，或本链已有入口 / 问询 / 相位。
 状态从 history 每轮重推。禁止拿 `ugc-ads` / `trending-search` 正文跑本链。**禁止搜片**，不要调用 `trending_search_videos` 或任何搜片 skill。
 
 ### `product`
@@ -332,13 +332,13 @@ script 普通模式：分镜 run_prompt（及该跑的角色图 `get_task` 终�
 2. 无链接、有商品图 → 记下商品图 URL；有实质用户文则整理后写入 `ProductBrief` / 确认事实，缺标题则用用户描述里的商品名或 `(untitled product)` → 进入 `selling_analysis`。不要走解析。不要把 `imageUrls:` 商品图当成产品页。进入 `selling_analysis` 前同样必须已有 `projectId`
 3. 无链接、无图 → `parse_product_info({ projectId })`（**不传** `productLink`）打开空编辑控件，用户填 title / description / 上传图片。**不要**再用 Host tools 收集这三项。同一 continuation **禁止** `display_product_info`。停住等 §商品确认信号，再按路径 1 同样解析并 `display_product_info`。无 iframe 宿主才用 Host tools 收集标题/描述/图。
 
-`imageUrls:` 且 host 含 `buzzy.now`、path 含 `/file-service/`、图片后缀 → 商品图，不是产品页。  
+`imageUrls:` 且 host 含 `buzzy.now`、path 含 `/file-service/`、图片后缀 → 商品图，不是产品页。
 商品已确认展示 = `display_product_info` 已按该次确认跑完，或无链接有图路径已记下商品图 URL。卖点三段未贴 → 立刻 `selling_analysis`；**禁止**先出规格提问，**禁止**先出搜片提问。
 
 ### `selling_analysis`
 
-见 `selling-analysis-prompt.md`。前置：产品信息已确认。  
-`run_prompt(prompt_key="tvc_ads_selling_analysis", projectId=项目 id, instruction=卖点分析输入)` **恰好 1 次**。成功字段是 `content` + `name`（`name` 必须是 `Selling Point Analysis`）。商品图 URL 有才加（确认消息 `Main Image:` / `Images:`，或 `display_product_info` 返回的图地址；否则用已记下的商品图 URL）。走 `image_url(s)`。**禁止传 `nodeIds`**。还没有 `projectId` 就先 `create_project`。  
+见 `selling-analysis-prompt.md`。前置：产品信息已确认。
+`run_prompt(prompt_key="tvc_ads_selling_analysis", projectId=项目 id, instruction=卖点分析输入)` **恰好 1 次**。成功字段是 `content` + `name`（`name` 必须是 `Selling Point Analysis`）。商品图 URL 有才加（确认消息 `Main Image:` / `Images:`，或 `display_product_info` 返回的图地址；否则用已记下的商品图 URL）。走 `image_url(s)`。**禁止传 `nodeIds`**。还没有 `projectId` 就先 `create_project`。
 **HARD**：`恰好 1 次` 只约束 run_prompt。同一 continuation 必须按 `selling-analysis-prompt.md` 贴三段：`Here are the product selling points:` + `items[].content` 原文 markdown + `Confirm to continue, or tell me what you'd like to change.`（禁止只写 `Your selling point analysis is ready.`，禁止 code fence，禁止只贴正文不说明这是卖点）。然后**停住**等用户自由回复。**不要**调 Host tools Continue/Revise。缺这三段 = 卡住 / 本步失败。不要顺跑规格提问。用户回复 `ok` / `continue` / `looks good` / `confirm` / 确认 / 继续，或改了文案后接受 → `SellingPoint` = `content` 全文（不含引导句 / 确认句；用户改了文案则以用户稿为准）。规格提问不再收卖点。禁止去调 UGC 的 brief / selling key。
 
 ### `ref_video`
@@ -353,8 +353,8 @@ script 普通模式：分镜 run_prompt（及该跑的角色图 `get_task` 终�
 
 ### `info_card`
 
-前置：`SellingPoint` 已写入。  
-**必须**对 Host tools 真调用（能一次提多题就一次提完）。标题 `Video settings`。assistant 正文最多一句：`Confirm duration, aspect ratio, and resolution.`  
+前置：`SellingPoint` 已写入。
+**必须**对 Host tools 真调用（能一次提多题就一次提完）。标题 `Video settings`。assistant 正文最多一句：`Confirm duration, aspect ratio, and resolution.`
 **HARD — 选项在 tool 里，不在 Chat**：每一题的全部候选项只进该题 `options`。禁止把三项印成单值「当前设置」。仅当三个 Host tools 名字都没有、只能用正文时，每行必须列出该字段全部档位：
 
 ```text
@@ -447,15 +447,15 @@ questions:
 | `res_720p` / `720p` | `SessionVideoResolution=720p` |
 | `res_1080p` / `1080p` | `SessionVideoResolution=1080p` |
 
-发出后**停住**等用户点选。Host tools 返回若没有各题选中项 = 未答，禁止 Advance。Chat 编号列表不算已问。  
+发出后**停住**等用户点选。Host tools 返回若没有各题选中项 = 未答，禁止 Advance。Chat 编号列表不算已问。
 整链默认一次。用户**本句已明确写出**画幅 + 时长（+ 分辨率）且要求开跑 → 写入 Session 后可不再停。只打印默认 / 用户未逐项选定 ≠ 已给齐。成片调用时若有模型表，再按 §运行时填参收敛一次：用户选的 token 不在该行 → 改用该行第一个合法值，或 Host tools 再问一次（再问时选项仍用本节字面量全档，不要改成模型表子集）。无模型表则按用户所选原样传。
 
 确认后冻结 `SessionVideoDuration` = 所选档位原文，并写入对应 `SessionVideoDurationRange`。时长范围写入分镜：`<15s` → `0-15s`；`15s-30s` → `15-30s`；`30s-1min` → `30-60s`。分镜总时长必须落在所选范围内。**禁止**把档位映射成 15 / 22 / 45 / 75 或任何写死秒数。废弃旧时长卡（`<30s` / `30s-1min` / `>1min`）不得生成或回退。Jump 越过本闸且用户未点名规格 → 内部写入 `<15s` / `16:9` / `720p`（`SessionVideoDurationRange=0-15s`），禁止把这三档印给用户当选项清单。参考视频只作节奏 / 镜头 / 构图参考，不是输出总时长约束。
 
 ### `script`
 
-有用户分镜 → 整理成 GFM 表，并按 `script-table-format.md` 把每一行转成分镜卡片贴进对话。否则见 `storyboard-prompts.md`。  
-有参考（`ref_video=provided`）→ `tvc_ads_storyboard_with_ref`；无参考 → `tvc_ads_storyboard_no_ref`。缺卖点 / 参考写 `(none)`。分镜输出中的声音描述必须形成一份全片统一的 `VoiceProfile`：由 script 首次生成时确定并写入内存，后续 plan 与 video 逐段复用；不得让 agent 按片段重新发明声音身份。声音质量规则见 `voice-direction.md`。  
+有用户分镜 → 整理成 GFM 表，并按 `script-table-format.md` 把每一行转成分镜卡片贴进对话。否则见 `storyboard-prompts.md`。
+有参考（`ref_video=provided`）→ `tvc_ads_storyboard_with_ref`；无参考 → `tvc_ads_storyboard_no_ref`。缺卖点 / 参考写 `(none)`。分镜输出中的声音描述必须形成一份全片统一的 `VoiceProfile`：由 script 首次生成时确定并写入内存，后续 plan 与 video 逐段复用；不得让 agent 按片段重新发明声音身份。声音质量规则见 `voice-direction.md`。
 `name` 必须是 `Storyboard Table`。非 GFM / 缺分隔行 → 重试。表头与正文固定 English。Chat **禁止**贴 `|` 管道表。
 
 **角色（附在本阶段，不是独立阶段）**：
@@ -476,23 +476,23 @@ questions:
 
 ### `plan`
 
-内部。见 `plan-and-opening.md`。不把脚本计划 / Master 提示词 / Preview·首帧 Prompt 贴进 Chat。  
-仅当用户已确认离开 script（等待提问选继续）或 FastForward / Jump 到更后阶段时才进入。  
-无参考模式在调用 `tvc_ads_master_video_prompt` **之前**，必须检查已确认商品的真实图片 URL 是否至少有一张；没有就请用户补图并停在 `plan`，禁止调用 Master Prompt、`tvc_ads_first_frame_prompt` 或首帧 `generate_image`，也禁止用商品描述或分镜表正文代替图片参考。分段仍走 `tvc_ads_script_plan` / `tvc_ads_master_video_prompt`。**HARD**：分镜行 / Chat 卡片是 shot，不是成片单元。计划返回后必须按 `plan-and-opening.md` §Shot ≠ Segment 做进入前校验；「一镜一段」（例如 8 个 2s/3s 镜 → 8 段）非法，必须先本地重切，仍不过再重跑计划。`SegmentCount` 冻结前禁止出预览 / 首帧 / 成片。  
+内部。见 `plan-and-opening.md`。不把脚本计划 / Master 提示词 / Preview·首帧 Prompt 贴进 Chat。
+仅当用户已确认离开 script（等待提问选继续）或 FastForward / Jump 到更后阶段时才进入。
+无参考模式在调用 `tvc_ads_master_video_prompt` **之前**，必须检查已确认商品的真实图片 URL 是否至少有一张；没有就请用户补图并停在 `plan`，禁止调用 Master Prompt、`tvc_ads_first_frame_prompt` 或首帧 `generate_image`，也禁止用商品描述或分镜表正文代替图片参考。分段仍走 `tvc_ads_script_plan` / `tvc_ads_master_video_prompt`。**HARD**：分镜行 / Chat 卡片是 shot，不是成片单元。计划返回后必须按 `plan-and-opening.md` §Shot ≠ Segment 做进入前校验；「一镜一段」（例如 8 个 2s/3s 镜 → 8 段）非法，必须先本地重切，仍不过再重跑计划。`SegmentCount` 冻结前禁止出预览 / 首帧 / 成片。
 **HARD — 开场视觉已 Skip 则只分段**：`opening_visual=skip`（含 Jump 到 `video` 且用户没点名首帧 / 预览）时，计划仍要跑，但**禁止**写 `PreviewPrompts`、禁止调 `tvc_ads_first_frame_prompt`、禁止 `generate_image` 首帧 / 预览；分段通过后同轮进 `video`。只有 `opening_visual` 仍 enabled 时：有参考由 agent 按段写 Preview Prompt；无参考在拆段（及必要的本地重切）后才调用 `tvc_ads_first_frame_prompt`，输入完整分镜、MasterVideoPrompt、分段后的 `SegmentVideoPrompts[]` 与商品图事实，并在该调用中挂载已确认商品的真实图片 URL（主图第一）；读取并校验 `first_frame_prompts[]`，按 `clip_index` 与合并后的 `SegmentCount` 对齐后逐字冻结。随后调用 `generate_image` 时再次挂载同一组真实商品图片 URL，主图仍排第一；分镜表只进 Prompt。禁止再调 `tvc_ads_master_first_frame_prompt`，也禁止 agent 另写或覆盖模板返回的首帧 Prompt。
 
 ### `opening_visual`
 
-skip 或各段已 **provided**（用户本轮指定的预览 / 首帧，不是作废旧产物）→ 不生成。否则按 `plan-and-opening.md` 变槽并发 ×N，**N = 合并后的 `SegmentCount`**，禁止按 shot 行数 / Chat 卡片数出图。调用 `generate_image` 前必须重新取已确认商品的真实产品图片 URL，主图第一；不得只沿用首帧 Prompt 工作流的文字结果。无真实产品图 URL → 问补图，禁止无参考硬生成。每张图提交后必须 `get_task` **阻塞轮询到成功**，记下素材 URL；全部终态前禁止发等待提问。  
+skip 或各段已 **provided**（用户本轮指定的预览 / 首帧，不是作废旧产物）→ 不生成。否则按 `plan-and-opening.md` 变槽并发 ×N，**N = 合并后的 `SegmentCount`**，禁止按 shot 行数 / Chat 卡片数出图。调用 `generate_image` 前必须重新取已确认商品的真实产品图片 URL，主图第一；不得只沿用首帧 Prompt 工作流的文字结果。无真实产品图 URL → 问补图，禁止无参考硬生成。每张图提交后必须 `get_task` **阻塞轮询到成功**，记下素材 URL；全部终态前禁止发等待提问。
 成功后按 §双通道发等待提问并停住（FastForward 除外）。**有参考预览与无参考首帧都不提供 Edit**；只留继续出片和 `Revise`。Rollback 不得把本阶段改成 skip。
 
 ### `video` / `merge`
 
-见 `video-generate-prompt.md`。每**段**生成一段新片子（不要用参考视频当成片输入）。段 = `plan` 合并后的 segment，不是分镜表一行。`generate_video` 次数 = `SegmentCount`；`duration` = 该段 `segment_duration`。禁止一镜一段。`generate_video.model` = Video 表 **seedance-2.0-fast** 行的 `model` 列原文；`aspectRatio` / `resolution` 按 §运行时填参只传该行合法 token（无模型表则用 Session 原样）。  
-**HARD — 提示词长度硬限制（≤ 2000 字符）**：平台视频生成工具对 `prompt` 有严格的 2000 字符硬限制。成片正文严禁把包含 `| --- |` 的原始 Markdown 表格或冗余列原样填入，必须按 `video-generate-prompt.md` 紧凑时间线（Compact Shot Timeline）和紧凑声音块（Compact Audio Block ≤ 450 字符）进行组装，并在调用前自检总字符数（预算目标 ≤ 1800 字符，总长超过 1900 字符必须触发两级自动修剪），严禁突破 2000 字符导致报错。  
-进入 `video` 后必须先生成第 1 段；第 1 段成功返回并可作为音频参考后，再在同一 action 并发生成第 2…N 段。后续片段必须引用第 1 段的旁白音色 / 音频参考（有独立音频 URL 才挂；否则只用 VoiceProfile + Clip 1 matching 正文），并继续逐字复用同一份 `VoiceProfile`。第 1 段失败只重跑第 1 段；第 2…N 段失败则只并发重跑失败段。  
-普通模式：Clip 1 成功后，若能力声明支持独立音频参考槽则先写入 `Clip1AudioReference`；若明确不支持则写入 fallback 匹配约束，不等待不存在的槽位；随后在同一 action 并发启动 Clip 2…N。全部片段成功后对 Host tools 发 **配乐闸门**并停住。问句 = `Do you want background music in the final video?` 选项固定 `No music` / `Add background music`。选 `No music` → 直接以原生音轨合成；选 `Add background music` → 合成时在原生音轨上叠加音乐。视频片段本身仍只生成原生人声、真实环境音、动作 Foley 和必要的自然空间底噪，片段内不生成任何 BGM。N=1 仍走配乐闸门。  
-FastForward 到 merge → 同样先问配乐，再按选择合成。Skip(`merge`) → 以分段成片为结束态。合成时 `merge_videos` 挂各段成片 URL，禁止传 `nodeIds`。  
+见 `video-generate-prompt.md`。每**段**生成一段新片子（不要用参考视频当成片输入）。段 = `plan` 合并后的 segment，不是分镜表一行。`generate_video` 次数 = `SegmentCount`；`duration` = 该段 `segment_duration`。禁止一镜一段。`generate_video.model` = Video 表 **seedance-2.0-fast** 行的 `model` 列原文；`aspectRatio` / `resolution` 按 §运行时填参只传该行合法 token（无模型表则用 Session 原样）。
+**HARD — 提示词长度硬限制（≤ 2000 字符）**：平台视频生成工具对 `prompt` 有严格的 2000 字符硬限制。成片正文严禁把包含 `| --- |` 的原始 Markdown 表格或冗余列原样填入，必须按 `video-generate-prompt.md` 紧凑时间线（Compact Shot Timeline）和紧凑声音块（Compact Audio Block ≤ 450 字符）进行组装，并在调用前自检总字符数（预算目标 ≤ 1800 字符，总长超过 1900 字符必须触发两级自动修剪），严禁突破 2000 字符导致报错。
+进入 `video` 后必须先生成第 1 段；第 1 段成功返回并可作为音频参考后，再在同一 action 并发生成第 2…N 段。后续片段必须引用第 1 段的旁白音色 / 音频参考（有独立音频 URL 才挂；否则只用 VoiceProfile + Clip 1 matching 正文），并继续逐字复用同一份 `VoiceProfile`。第 1 段失败只重跑第 1 段；第 2…N 段失败则只并发重跑失败段。
+普通模式：Clip 1 成功后，若能力声明支持独立音频参考槽则先写入 `Clip1AudioReference`；若明确不支持则写入 fallback 匹配约束，不等待不存在的槽位；随后在同一 action 并发启动 Clip 2…N。全部片段成功后对 Host tools 发 **配乐闸门**并停住。问句 = `Do you want background music in the final video?` 选项固定 `No music` / `Add background music`。选 `No music` → 直接以原生音轨合成；选 `Add background music` → 合成时在原生音轨上叠加音乐。视频片段本身仍只生成原生人声、真实环境音、动作 Foley 和必要的自然空间底噪，片段内不生成任何 BGM。N=1 仍走配乐闸门。
+FastForward 到 merge → 同样先问配乐，再按选择合成。Skip(`merge`) → 以分段成片为结束态。合成时 `merge_videos` 挂各段成片 URL，禁止传 `nodeIds`。
 Rollback 重做 video 后同样停在对应等待提问，不要自动 merge。
 
 ---
@@ -514,7 +514,7 @@ Rollback 重做 video 后同样停在对应等待提问，不要自动 merge。
 
 **只发其中一个时**：自动续跑只发状态句；结束态只发 `Your {ReadyNoun} is ready.`（可保留 Revise 选项，不要再写引导）；上一拍已用状态句说过则本拍只发提问。
 
-选项只进 Host tools 的 `options`。禁止伪 call、编号列表、`Recommended:` 段落进 Chat。  
+选项只进 Host tools 的 `options`。禁止伪 call、编号列表、`Recommended:` 段落进 Chat。
 开场问询**不适用**本表的 Review / NextAct 拆句：对 Host tools 真调用；问句只有内容方向那一句；3 条方向只进 `options`。
 
 **通用提问规则**：第 1 条选项 = 下一 enabled 主路径；另给 Skip 或 Rollback 出口；只 Revise 实际存在的产物；FastForward 不发中间等待提问；Rollback 重做后必须发等待提问。**禁止**给开场视觉加 `Edit`。

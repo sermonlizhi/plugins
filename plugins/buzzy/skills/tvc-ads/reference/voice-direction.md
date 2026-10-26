@@ -24,7 +24,7 @@ A consistent human narrator in their early 30s, neutral international English wi
 
 上面的内容是结构示例，不是固定人设。根据商品、受众和用户方向改写事实部分，但保持句式和信息完整。没有独立 voice reference / voice ID 时，只能把它当作生成约束，不能宣称已锁定真实音色或跨片段完全一致。
 
-**成片提示词预算注入（HARD — Compact VoiceProfile ≤ 180 字符）**：  
+**成片提示词预算注入（HARD — Compact VoiceProfile ≤ 180 字符）**：
 为遵守 `generate_video.prompt` ≤ 2000 字符的硬上限，注入视频成片提示词时，必须将上述完整 profile 提炼为高密度的 Compact VoiceProfile（严格 ≤ 180 字符），禁止在成片提示词中堆砌散文长篇大论：
 ```text
 Narrator early 30s, neutral international English, warm low-mid register, gentle resonance, natural breath, relaxed conversational 2 words/sec pace. Intimate, observant, quietly confident. Close natural mic, no BGM.

@@ -1,6 +1,6 @@
 # AI Animation — 开场意图问询（基于用户指令组题）
 
-正式流水线前先补齐叙事执行所需信息。  
+正式流水线前先补齐叙事执行所需信息。
 **禁止**用规格提问问这些问题。每题对 Host tools 真调用一次（Cursor `AskQuestion`、Claude `AskUserQuestion` / `ask_question`、Codex 同类）。问句写在提问 tool 的 `prompt`，不要写进 Chat 编号列表。
 
 下表是**题型灵感**，不是每次必问的固定问卷。先读用户指令，再组题。
@@ -49,8 +49,8 @@ questions:
 7. 每轮只问一题。一条消息答了多题 → 全收。
 8. 问询中的上传先按 `assets-prompt.md` 把每一张识图分槽，再问下一题或结束。用户点名当风格用的图只绑 `style`，不要拷进角色 / 场景 / 故事参考。
 
-**默认（未问到或用户跳过的项）**：`style = pending`（问询结束后必须出 `choose_skill_asset`；未问到 ≠ 已 skip）；`assets = run`（剧本后先出提问，选继续才成图）；其它可选阶段 `run`；不 Jump；`StyleTemplate=animation`；不预设「无角色」。  
-开场问询不代替剧本后提问。未问到 ≠ 已 skip。  
+**默认（未问到或用户跳过的项）**：`style = pending`（问询结束后必须出 `choose_skill_asset`；未问到 ≠ 已 skip）；`assets = run`（剧本后先出提问，选继续才成图）；其它可选阶段 `run`；不 Jump；`StyleTemplate=animation`；不预设「无角色」。
+开场问询不代替剧本后提问。未问到 ≠ 已 skip。
 开场若已明确交风格图 → `style = provided`，问询结束后不要再发卡。
 
 ## 题型示例（必须按当前指令改写，禁止原文照贴）
@@ -62,5 +62,5 @@ questions:
 | 人物未定 | brief 短名 | 问谁领这场戏 | 一人 / 搭档 / 小队（只给 3 个；自填留给 Other） |
 | 指令已有方向 | brief 短名 | 围着已有方向补一个执行缺口 | 按语义给恰好 3 个选项 |
 
-把回答映射到算子：不要某产物 → Skip；我会给 → Provide；做到 X → Jump；长文本 → `StoryGoal` / `GenreTone` / `CharacterPlan` / `VisualLanguage`。  
+把回答映射到算子：不要某产物 → Skip；我会给 → Provide；做到 X → Jump；长文本 → `StoryGoal` / `GenreTone` / `CharacterPlan` / `VisualLanguage`。
 Provide 与「不要角色图」冲突 → 以用户图为准。风格图与角色 / 场景图冲突 → 风格图只进 `style`。

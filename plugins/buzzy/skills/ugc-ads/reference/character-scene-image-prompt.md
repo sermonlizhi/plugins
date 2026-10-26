@@ -1,11 +1,11 @@
 # UGC ADS — 角色 / 场景
 
-阶段轮到且仍 enabled 时自动做（不要等额外按钮）。  
-该跑：agent **直接写出** Prompt（不上 Chat），再按 Prompt 成图。  
-**禁止**调 `ugc_ads_character_prompt` / `ugc_ads_scene_prompt` 或其它 run_prompt 获取这些正文。  
+阶段轮到且仍 enabled 时自动做（不要等额外按钮）。
+该跑：agent **直接写出** Prompt（不上 Chat），再按 Prompt 成图。
+**禁止**调 `ugc_ads_character_prompt` / `ugc_ads_scene_prompt` 或其它 run_prompt 获取这些正文。
 `skip` 且无自供图 → 不做；`provided` → 只绑定。见 `slot-adaptation.md`。
 
-角色图 / 场景图的 `generate_image.model` = `<available_models>` Image 表 **Nano Banana 2** 行的 `model` 列原文（`name` 只用来找行）。  
+角色图 / 场景图的 `generate_image.model` = `<available_models>` Image 表 **Nano Banana 2** 行的 `model` 列原文（`name` 只用来找行）。
 **HARD — 画幅**：角色图 / 场景图的 `generate_image.aspectRatio` **固定 `9:16`**。禁止写 `SessionRatio`、禁止跟规格提问画幅。首帧 / 成片仍用 `SessionRatio`，不要被本步带偏。
 
 ---
@@ -40,7 +40,7 @@ A raw front-camera selfie video snapshot of a [年龄/性别/外貌特征], [动
 
 **默认机位（HARD）**：front-camera selfie + `looking directly into the lens and talking with …`。仅当用户本轮 / `ExecutionGoal` / `CharacterRole` **点名**了不同出镜方式（开箱、不看镜头、演示、侧拍等）才改 `[动作与场景位置]` 和对镜/说话从句；其余句式、皮肤质感句、片尾句不动。
 
-片尾**只许**这一句：`Authentic iPhone front camera video still, lifelike saturation, no grey wash, no desaturation, no cinematic color grading, no phone in hands, no screen UI, 9:16.`  
+片尾**只许**这一句：`Authentic iPhone front camera video still, lifelike saturation, no grey wash, no desaturation, no cinematic color grading, no phone in hands, no screen UI, 9:16.`
 禁止再追加 `photorealistic` / `ordinary consumer` / `low-end smartphone camera` / `slight film grain` / `authentic handheld UGC` / `imperfect framing` 等旧质感词。
 
 补充（只约束填槽，不另写正文）：
@@ -76,7 +76,7 @@ A casual vertical smartphone photo taken from a seated perspective on [拍摄起
 
 **默认机位（HARD）**：seated perspective + eye-level POV。仅当用户本轮 / `ExecutionGoal` / `VisualTone` **点名**了不同机位（站立、俯拍、跟拍等）才改起始位和对句；其余句式、片尾句不动。禁止无依据改成俯拍或房间全景。
 
-片尾**只许**这一句：`no high angle, no overhead shot, no top-down perspective, no elevated angle, no wide-angle room overview, no professional interior photography, 9:16.`  
+片尾**只许**这一句：`no high angle, no overhead shot, no top-down perspective, no elevated angle, no wide-angle room overview, no professional interior photography, 9:16.`
 禁止再追加 `authentic handheld` / `casual medium-wide` / `slight shake` / `subtle noise` / `authentic UGC` 等旧镜头词。禁止写「中景/广景」或「留出人物站位」。
 
 补充（只约束填槽，不另写正文）：
@@ -89,12 +89,12 @@ A casual vertical smartphone photo taken from a seated perspective on [拍摄起
 
 ## 2. 成图
 
-该跑的 Prompt 写好后，**同轮并发**按各自 Prompt 正文成图。不要再挂产品图当生成参考。  
+该跑的 Prompt 写好后，**同轮并发**按各自 Prompt 正文成图。不要再挂产品图当生成参考。
 角色图 / 场景图都**只吃自己的 Prompt**。角色成图 **禁止**挂场景图当参考。
 
-`model` = `<available_models>` Image 表 **Nano Banana 2** 行的 `model` 列原文。  
-`generate_image.aspectRatio` **固定 `9:16`**（HARD）。禁止传 `SessionRatio` 或规格提问画幅。  
-角色成图 title = `[Character] Creator`；场景成图 title = `[Scene] {短名}`。  
-**HARD**：`generate_image` 只返回 `task_id`。同一 continuation 必须反复 `get_task` 直到 `TASK_STATE_SUCCEEDED`（PENDING/RUNNING 就继续查，不要停、不要等用户），记下素材 URL。Apps widget 不能代替轮询。后续 `generate_image` / `generate_video` / run_prompt 都用这个 URL，禁止把 `node_id` 当素材入参。  
-有 Avatar → 跳过角色 Prompt + 成图。有匹配场景图 → 跳过场景成图。`scene = skip` 且无场景图 → Scene Prompt 也不做。  
+`model` = `<available_models>` Image 表 **Nano Banana 2** 行的 `model` 列原文。
+`generate_image.aspectRatio` **固定 `9:16`**（HARD）。禁止传 `SessionRatio` 或规格提问画幅。
+角色成图 title = `[Character] Creator`；场景成图 title = `[Scene] {短名}`。
+**HARD**：`generate_image` 只返回 `task_id`。同一 continuation 必须反复 `get_task` 直到 `TASK_STATE_SUCCEEDED`（PENDING/RUNNING 就继续查，不要停、不要等用户），记下素材 URL。Apps widget 不能代替轮询。后续 `generate_image` / `generate_video` / run_prompt 都用这个 URL，禁止把 `node_id` 当素材入参。
+有 Avatar → 跳过角色 Prompt + 成图。有匹配场景图 → 跳过场景成图。`scene = skip` 且无场景图 → Scene Prompt 也不做。
 全部成功 → 正文写状态句，文案按 SKILL §双通道。立刻 Advance 到 script 等待提问。

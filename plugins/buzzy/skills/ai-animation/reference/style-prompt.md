@@ -1,6 +1,6 @@
 # AI Animation — 风格参考（`style`）
 
-决策闸门。默认 `pending`。`StyleTemplate` 冻结为 `animation`。风格库走 `choose_skill_asset`，禁止 `PushStyleList`。  
+决策闸门。默认 `pending`。`StyleTemplate` 冻结为 `animation`。风格库走 `choose_skill_asset`，禁止 `PushStyleList`。
 风格库交出 **一张风格参考图**，用来约束后面整条链的视觉。它不是角色设定、不是场景底板、不是预览图、不是成片输入。
 
 见 `slot-adaptation.md`。
@@ -29,8 +29,8 @@
 | `style_template` | `"animation"`（禁止省略，省略会落到 `ai_film`） |
 | `title` | `"Styles"` |
 
-只发这一次调用。不要缓存候选。每次重进重新发卡。  
-**返回值不是用户选择**：`items` / 控件打开只表示列表已出。有控件的宿主 → **停住**，等用户发 `Confirmed Styles info`。禁止把返回列表当成已选。禁止同拍再调 Host tools。  
+只发这一次调用。不要缓存候选。每次重进重新发卡。
+**返回值不是用户选择**：`items` / 控件打开只表示列表已出。有控件的宿主 → **停住**，等用户发 `Confirmed Styles info`。禁止把返回列表当成已选。禁止同拍再调 Host tools。
 **无控件宿主**（结果带 `fallback.message`，或宿主渲染不了 Apps iframe）→ 同一 continuation 对 Host tools 发一题：问句 `Pick a style reference image for this video.`；`options` = 本次返回的 `items[].name` **全部列出**（禁止自己现写 3 条动画方向）。若宿主单次 options 有上限，按返回顺序取前 N 条，问句写明用户也可打风格名。
 
 含糊重发必须仍是 `style_template: "animation"` + `title: "Styles"`，禁止改 key、禁止另发第二张卡。
@@ -39,7 +39,7 @@
 
 按这次序只取一条：
 
-1. 消息含 `Confirmed Styles info` / `Confirmed <title> info` → 解析 `name:` 与 `image:`（无 `image:` 则 `hdImage` / 第一条 https）。写入 `StyleName` + `StyleImageUrl`（`image:` 原文）。`style = done`。**不要**把这张图拷进角色 / 场景 / 用户故事参考槽。同轮 Advance 到 `settings`。  
+1. 消息含 `Confirmed Styles info` / `Confirmed <title> info` → 解析 `name:` 与 `image:`（无 `image:` 则 `hdImage` / 第一条 https）。写入 `StyleName` + `StyleImageUrl`（`image:` 原文）。`style = done`。**不要**把这张图拷进角色 / 场景 / 用户故事参考槽。同轮 Advance 到 `settings`。
    **例外**：上一拍是资产替换 / 成图前上传回来的图，**不要**走本条。按 `assets-prompt.md` 识图分槽，默认当角色/场景，除非用户点名当风格。
 2. 无控件 Host tools 回了某个 `items[].name`（或 Other 打了库里的风格名）→ 在上一拍 `items` 里按 `name` 对齐，取 `hdImage` 否则 `icon`，写入 `StyleImageUrl` + `StyleName`。`style = done`。同轮进 `settings`。对不上 → 用同一批 `name` 重发 Host tools，不要进 `settings`。
 3. 本轮携带非空风格图 URL（用户点名当风格，或消息里明确是 style reference）→ 取 **第一张** URL 原文写入 `StyleImageUrl`。`style = provided`。同轮进 `settings`。
@@ -59,6 +59,6 @@ Rollback(`style`) / 换风格 / 重开 → `style` 及之后全部 `invalidated`
 
 ## 普通模式等待面
 
-发卡当拍：只调 `choose_skill_asset`，不发状态句。无控件 fallback 才发 Host tools，引导 `Pick a style reference image for this video.`  
-点选刚绑定、下一拍是规格：状态句 `Your style reference is ready.`；引导 `Review the style reference, then set up your video.`  
+发卡当拍：只调 `choose_skill_asset`，不发状态句。无控件 fallback 才发 Host tools，引导 `Pick a style reference image for this video.`
+点选刚绑定、下一拍是规格：状态句 `Your style reference is ready.`；引导 `Review the style reference, then set up your video.`
 FastForward / AutoRun：不发中间提问，风格 resolved 后立刻 `settings`。

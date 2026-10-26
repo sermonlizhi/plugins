@@ -1,8 +1,8 @@
 # TVC ADS — 开场意图问询（指令式触发）
 
-是否问询由本任务**首轮**字面量决定，不是每次必问。  
-`no-questions` → 不问，直接进 `product`。`with-questions` 或未写 → 问恰好 1 题。  
-问的时候：必须对 Host tools 真调用一次（Cursor `AskQuestion`、Claude `AskUserQuestion` / `ask_question`、Codex 同类）。本题只问**广告视频内容方向**。选项不固定，必须根据本轮用户输入现写。  
+是否问询由本任务**首轮**字面量决定，不是每次必问。
+`no-questions` → 不问，直接进 `product`。`with-questions` 或未写 → 问恰好 1 题。
+问的时候：必须对 Host tools 真调用一次（Cursor `AskQuestion`、Claude `AskUserQuestion` / `ask_question`、Codex 同类）。本题只问**广告视频内容方向**。选项不固定，必须根据本轮用户输入现写。
 **禁止**把 3 条方向写成 Chat 编号列表 / bullet / `Recommended:` 段落。那样写 = 本步失败。仅当 `tools/list` 里三个 host 名字都没有时才允许编号列表，并写明本宿主没有选择框。Cursor 有 `AskQuestion`，禁止走这条。
 
 ## HARD
@@ -54,7 +54,7 @@ questions:
 
 **默认（`no-questions` 或未问到的项）**：可选阶段 `run`；不 Jump；`ref_video = skip`（禁止再问搜片卡）；画风 `cinematic polished TVC`。
 
-把用户回答映射到算子：不要某产物 → Skip；我会给 → Provide；做到 X → Jump(X)。长文本内容方向 → `ExecutionGoal`。  
+把用户回答映射到算子：不要某产物 → Skip；我会给 → Provide；做到 X → Jump(X)。长文本内容方向 → `ExecutionGoal`。
 Provide 与「不要出镜」冲突 → 以用户图为准。
 
 ## 选项示例（必须按本轮指令现写，禁止原样照抄）

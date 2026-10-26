@@ -4,49 +4,49 @@
 
 ## Foundational Techniques
 
-**1. Establishing Shot (4–6s)**  
+**1. Establishing Shot (4–6s)**
 "Establishing shot: camera positioned 50 feet from subject. Wide focal length equivalent (24–35mm cinema). Pan slowly across landscape revealing scale, depth, three distinct layers: foreground detail, mid-ground interest, background context."
 
-**2. Push-In / Dolly Forward (1–3s)**  
+**2. Push-In / Dolly Forward (1–3s)**
 "Camera dolly forward 3 feet at constant speed over 2 seconds. Maintain shallow depth of field. Subject remains centered. Slight lens distortion at frame edges suggesting movement."
 
-**3. Pull-Back / Reveal (1–4s)**  
+**3. Pull-Back / Reveal (1–4s)**
 "Camera pulls back 20 feet over 3 seconds. Maintain sharp focus throughout. Foreground subject stays anchored, background reveals environmental scale."
 
-**4. Whip Pan (0.3–0.6s)**  
+**4. Whip Pan (0.3–0.6s)**
 "Whip pan left to right across scene in 0.5 seconds. Motion-blur trails permitted. Subject B comes into sharp focus as camera settles. Smooth deceleration at end."
 
-**5. Parallax / Depth Layer Move (2–4s)**  
+**5. Parallax / Depth Layer Move (2–4s)**
 "Camera tilts upward at 2 feet per second. Foreground remains sharp, background moves slower, mid-ground at medium speed."
 
-**6. Handheld / Steadicam (2–6s)**  
+**6. Handheld / Steadicam (2–6s)**
 "Handheld camera following subject. Micro-vibrations: 0.5–1mm frame jitter. Breathing motion (expand/contract frame 2–3 pixels). Steadicam-like smoothness with human imperfection. NOT locked-off rigid."
 
-**7. Tracking Shot (3–8s)**  
+**7. Tracking Shot (3–8s)**
 "Camera tracks subject from side profile. Maintain consistent framing: subject at frame-right, environment at frame-left. Move in sync with subject motion at 3 mph equivalent."
 
-**8. Crane Up (3–6s)**  
+**8. Crane Up (3–6s)**
 "Camera rises vertically 40 feet over 4 seconds. Subject remains in frame bottom-center initially. Reveals landscape as crane rises. Slight tilt down to maintain subject connection."
 
-**9. 360 / Orbital Spin (4–8s)**  
+**9. 360 / Orbital Spin (4–8s)**
 "Camera orbits 270 degrees around subject over 5 seconds. Maintain constant 10-foot distance. Subject always in frame-center. Counterclockwise rotation."
 
-**10. Rack Focus (0.5–2s)**  
+**10. Rack Focus (0.5–2s)**
 "Rack focus from foreground (sharp, 2 feet away) to background (sharp, 30 feet away) over 1.5 seconds. Middle ground blurs during transition. f/1.4 cinema equivalent."
 
-**11. Dutch Angle (3–8s)**  
+**11. Dutch Angle (3–8s)**
 "Frame tilted 25 degrees counterclockwise. Horizon line diagonal across frame. Maintain this tilt throughout the clip. Conveys psychological imbalance."
 
-**12. Insert / Extreme Close-Up (1–3s)**  
+**12. Insert / Extreme Close-Up (1–3s)**
 "Extreme close-up of [object detail]. Fills 80% of frame. Shallow depth of field creates bokeh background."
 
-**13. Over-the-Shoulder (2–4s)**  
+**13. Over-the-Shoulder (2–4s)**
 "Over-the-shoulder framing: camera positioned 2 feet behind character. Partial shoulder/head of foreground character visible frame-left, subject visible frame-right. Soft focus on near shoulder."
 
-**14. Bird's Eye / Top-Down (2–5s)**  
+**14. Bird's Eye / Top-Down (2–5s)**
 "Top-down camera position: directly above subject, 15 feet up. Looking straight down at 0-degree angle."
 
-**15. POV (2–6s)**  
+**15. POV (2–6s)**
 "First-person camera position at eye level. Camera moves as if character walking. Frame jitters slightly with footsteps. Maintains head-height positioning throughout."
 
 ## Movement Encyclopedia

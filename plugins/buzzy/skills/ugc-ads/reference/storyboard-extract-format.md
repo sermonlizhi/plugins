@@ -1,6 +1,6 @@
 # UGC ADS — 分镜拆段格式（HARD）
 
-内存变量 **`ExtractVideoContents[i-1]`** = **Markdown 逐镜提取**（小标题 + bullet 列表）；**纯内存，不调 LLM**。  
+内存变量 **`ExtractVideoContents[i-1]`** = **Markdown 逐镜提取**（小标题 + bullet 列表）；**纯内存，不调 LLM**。
 agent 从分镜表**逐字组装**后写入内存。组装说明见 `storyboard-extract-prompt.md`。
 
 **禁止** Markdown **表格**（`| col |`）；**禁止** JSON；**禁止**在 bullet 之间插入空行。

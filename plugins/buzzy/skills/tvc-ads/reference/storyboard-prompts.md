@@ -1,6 +1,6 @@
 # TVC ADS — 分镜与角色图 Prompt
 
-分镜工具与返回形态已注册。按是否有参考视频选择下方工具，传纯文本输入和真实媒体 URL。不要把 YAML 当自由 prompt。  
+分镜工具与返回形态已注册。按是否有参考视频选择下方工具，传纯文本输入和真实媒体 URL。不要把 YAML 当自由 prompt。
 角色图 Prompt **只从有参考分镜返回的 `character_prompts` 逐字取**，禁止 agent 另写。禁止搜片，禁止调 `tvc_ads_search_keywords`。
 
 | 用途 | 怎么拿 | 成功后读 |
@@ -8,7 +8,7 @@
 | 分镜（有参考） | `tvc_ads_storyboard_with_ref` | `name` + `items[].content` + `voice_profile` + 可选 `character_prompts` |
 | 分镜（无参考） | `tvc_ads_storyboard_no_ref` | `name` + `items[].content` + `voice_profile` |
 
-`name` 必须是 `Storyboard Table`。`content` = English GFM 表（表头 + 分隔行 + 每镜一行）。缺分隔行 → 非法重试。  
+`name` 必须是 `Storyboard Table`。`content` = English GFM 表（表头 + 分隔行 + 每镜一行）。缺分隔行 → 非法重试。
 **HARD — 对话渲染**：同一 continuation 必须按 `script-table-format.md` 把每一表行转成分镜卡片贴进对话。**禁止**把 `|` 管道表贴进 Chat。禁止 code fence。卡片贴完后发 Host tools Continue/Revise。
 
 ---
@@ -35,8 +35,8 @@ Execution Goal: {ExecutionGoalOrNone}
 
 成功：读 `items[].content`。读取顶层 `voice_profile` 并冻结为全片 `VoiceProfile`。`character_prompts` 非空且 `CharacterVisualPlan=run` → 同轮成角色图（Prompt **逐字**，禁止改写）。
 
-**人物图生成 HARD**：正常非 Jump 的有参考模式中，只要 `character_prompts` 返回非空且 `CharacterVisualPlan=run`，就必须在本阶段同轮生成对应人物图。以下情况必须不生成：用户明确 Skip 角色或 Jump 越过该可选子产物（`CharacterVisualPlan=skip`）；`character_prompts` 为空数组；用户已 Provide 角色图（`CharacterVisualPlan=provided`）。不得让本条覆盖 Jump 已写入的子状态。  
-有参考却返回无法访问 → 非法；重试并在输入顶部说明参考已挂上。  
+**人物图生成 HARD**：正常非 Jump 的有参考模式中，只要 `character_prompts` 返回非空且 `CharacterVisualPlan=run`，就必须在本阶段同轮生成对应人物图。以下情况必须不生成：用户明确 Skip 角色或 Jump 越过该可选子产物（`CharacterVisualPlan=skip`）；`character_prompts` 为空数组；用户已 Provide 角色图（`CharacterVisualPlan=provided`）。不得让本条覆盖 Jump 已写入的子状态。
+有参考却返回无法访问 → 非法；重试并在输入顶部说明参考已挂上。
 run_prompt 返回 **不等于** 对话卡片，更 **不等于** 等待提问。本步未完成，必须进入 §4。
 
 ---
@@ -45,8 +45,8 @@ run_prompt 返回 **不等于** 对话卡片，更 **不等于** 等待提问。
 
 参考：商品图 URL（主图在前）。走 `image_url(s)`，有才加。**禁止传 `nodeIds`**。
 
-输入：同上（无参考视频）。`selling_point` / 意图字段同样写入。  
-成功：读 `items[].content`。读取顶层 `voice_profile` 并冻结为全片 `VoiceProfile`。忽略返回里的 `character_prompts`，不生成角色图。  
+输入：同上（无参考视频）。`selling_point` / 意图字段同样写入。
+成功：读 `items[].content`。读取顶层 `voice_profile` 并冻结为全片 `VoiceProfile`。忽略返回里的 `character_prompts`，不生成角色图。
 run_prompt 返回 **不等于** 等待提问。本步未完成，必须进入 §4。
 
 ---
@@ -73,8 +73,8 @@ run_prompt 返回 **不等于** 等待提问。本步未完成，必须进入 §
    - 否则：问句 = `Review the storyboard table, then continue.`
    - 第 1 条 = 下一 enabled 主路径（有参考 → `Generate preview image`；无参考 → `Generate first frames`）；另给 `Revise` 出口。
 
-然后**停住** = 不要同 continuation 进 `plan` / 开场视觉 / 成片。**停住不是「不要发提问」**。  
-只有本会话对这一稿成功过 Host tools 才算「script 等待提问仍有效」。  
+然后**停住** = 不要同 continuation 进 `plan` / 开场视觉 / 成片。**停住不是「不要发提问」**。
+只有本会话对这一稿成功过 Host tools 才算「script 等待提问仍有效」。
 `不要叠新调用` 只适用于 run_prompt / 角色图 **尚未终态**；返回后贴卡片 + 提问是 mandatory continuation，不是叠生成。
 
 **HARD — 等待上的越级**：用户下一句若点名更后产物（`directly generate the videos` / 直接出视频 / 跳过首帧 / 不要预览直接成片……）→ `Jump(T)`，当前 Continue/Revise **作废**。不要当成点了 `Generate first frames` / `Generate preview image`。Jump(`video`) 时 `Skip(opening_visual)`，静默 `plan` 只分段，立刻成片。

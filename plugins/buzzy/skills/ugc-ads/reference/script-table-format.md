@@ -1,7 +1,7 @@
 # UGC ADS — 分镜表格式（HARD）
 
-模板产出字段 `content` = **Markdown 表格纯文本**（**9** 列）；`name` = `[Script] UGC Storyboard`。  
-竖排 `字段: 值` **不会**被渲染为表 → **禁止**竖排输出。  
+模板产出字段 `content` = **Markdown 表格纯文本**（**9** 列）；`name` = `[Script] UGC Storyboard`。
+竖排 `字段: 值` **不会**被渲染为表 → **禁止**竖排输出。
 本文件只做**返回校验**（9 列管道表 / 列序固定 / GFM 分隔行），不拼进模板输入。
 
 对话渲染（HARD）：**不要**把 `|` 管道表贴进对话。窄聊天栏会把 9 列折成极高行。同一 continuation 必须按下方「对话分镜卡片」从每一表行转写卡片，然后发 Host tools Continue/Revise。禁止 code fence。

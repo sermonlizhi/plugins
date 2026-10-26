@@ -5,8 +5,8 @@
 | 有参考视频 | `ugc_ads_storyboard_with_ref` |
 | 无参考视频 | `ugc_ads_storyboard_no_ref` |
 
-产出字段 **`content`** = Markdown 9 列管道表；**`name`** 必须是 `[Script] UGC Storyboard`。  
-校验见 `script-table-format.md`。  
+产出字段 **`content`** = Markdown 9 列管道表；**`name`** 必须是 `[Script] UGC Storyboard`。
+校验见 `script-table-format.md`。
 **HARD — 对话渲染**：同一 continuation 必须按 `script-table-format.md`「对话分镜卡片」把每一表行转成卡片贴进对话。**禁止**把 `|` 管道表贴进 Chat。禁止 code fence。卡片贴完后发 Host tools Continue/Revise。
 
 ## 生成（HARD — 只调一次 run_prompt）

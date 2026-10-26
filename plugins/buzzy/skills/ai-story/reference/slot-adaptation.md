@@ -25,7 +25,7 @@ provided  →  generated(done)  →  skip 则省略该槽  →  回退到次近�
 
 Skip 且无正文 → 该描述槽写 `(none)`。Provide 的剧本文 / 提示词文原样绑定，不要再生成一份覆盖它。
 
-`style = skip` 时即使内存里还留着旧 `StyleImageUrl`，也当作空，禁止再传。  
+`style = skip` 时即使内存里还留着旧 `StyleImageUrl`，也当作空，禁止再传。
 剧本 / Video Prompt 文本**不是**生成参考，不要把它们的正文当 URL。
 
 ## 视觉槽
@@ -37,11 +37,11 @@ Skip 且无正文 → 该描述槽写 `(none)`。Provide 的剧本文 / 提示�
 3. 该组选中的场景底板（该槽现行图：生成或替换上传，用法相同）
 4. 用户另行指定的故事参考图（不是预览图、不是风格图）
 
-**风格参考只辅助视觉，不是成片硬底线。** `script`：用户图 / 视频走 `image_urls` / `video_urls`；风格不当内容。`assets` 的每张 `generate_image` 必须带上已绑定风格图（`image_urls` 只含这一张）。  
+**风格参考只辅助视觉，不是成片硬底线。** `script`：用户图 / 视频走 `image_urls` / `video_urls`；风格不当内容。`assets` 的每张 `generate_image` 必须带上已绑定风格图（`image_urls` 只含这一张）。
 **预览图 / `video_prompts` / 成片不单独再挂风格图**——风格已经进角色和场景。
 
-**预览图（`frames` 展示件）永远不是成片输入，也不是 STEP3 的 `image_urls`。**  
-`video_prompts` 的 `image_urls` = 角色 / 场景参考（有才加）。  
+**预览图（`frames` 展示件）永远不是成片输入，也不是 STEP3 的 `image_urls`。**
+`video_prompts` 的 `image_urls` = 角色 / 场景参考（有才加）。
 `clips` 的图像输入 = 该项 `characters` + `background` 选中的 URL；文本输入 = 该段已打印 `content`。没有图则退到仍可用的角色图或场景图；再没有 → 问补图，不要硬出片。
 
 角色设定画幅保持 `16:9`；场景底板保持 `16:9`；成片 / 预览图用 `VIDEO_RATIO`。不要把成片画幅回写到设定图。

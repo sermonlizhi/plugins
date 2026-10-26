@@ -36,7 +36,7 @@ Skip 成图：本拍不出图，下一拍只走合写（若需要）。Provide �
 | 只补失败章 | `Retrying the remaining preview images.` |
 | 只合写 | `Generating video prompts.` |
 
-禁止复用上一拍同一句。禁止中文。禁止在本拍再推等待提问。  
+禁止复用上一拍同一句。禁止中文。禁止在本拍再推等待提问。
 **HARD — 状态句一次出齐**：本批预览图未全部终态 → 禁止 `Your preview images are ready.`、禁止提问。全部终态后一次状态句。失败张：同一拍正文点名缺的 `[Preview Image] {i}`。禁止每张成功立刻提问。半截词不打印。词里禁止写 BGM。
 
 ## 从剧本出图（HARD）
@@ -81,6 +81,6 @@ Skip 成图：本拍不出图，下一拍只走合写（若需要）。Provide �
 
 ## 普通模式等待面
 
-两路都齐（或成图 Skip / 提示词 provided / 失败章已补过一轮）**且**已打印全部 `Video Prompt {i}` → 第 1 选项 = generate the clips。**禁止**再推 generate video prompts，**禁止**再推 `preview images`。  
-只齐一路 → 只发状态句 + 已齐那路的全文/预览，不推成片提问。  
+两路都齐（或成图 Skip / 提示词 provided / 失败章已补过一轮）**且**已打印全部 `Video Prompt {i}` → 第 1 选项 = generate the clips。**禁止**再推 generate video prompts，**禁止**再推 `preview images`。
+只齐一路 → 只发状态句 + 已齐那路的全文/预览，不推成片提问。
 另给 Modify / Skip 出口。Skip 成图且无可预览图时，不要假装「preview images are ready」。

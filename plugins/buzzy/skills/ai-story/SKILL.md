@@ -22,15 +22,15 @@ allowed-tools: |
 
 # AI Story Orchestrator
 
-本链自包含。查阅本 skill 文件只用完整前缀 `skills/ai-story/reference/`。  
-**怎么调平台能力、填哪些参数，对照各 tool 自己的声明**；本文件只写目的、产物和硬底线。  
+本链自包含。查阅本 skill 文件只用完整前缀 `skills/ai-story/reference/`。
+**怎么调平台能力、填哪些参数，对照各 tool 自己的声明**；本文件只写目的、产物和硬底线。
 本文件是编排器，不是 run_prompt 的填空稿，不要改写成 `user_lang`，不要压成短 brief。
 
-**HARD — allowed-tools 分类**：`Buzzy MCP tools` 是本 MCP 服务注册的平台 tool，经 Buzzy MCP `tools/call`。`Host tools — not part of this MCP server` 是宿主内置提问 tool，**不是** Buzzy MCP tool，也不走 `load_workflow` / ExecuteTools。Cursor 用 `AskQuestion`，Claude 用 `AskUserQuestion` / `ask_question`，Codex 用同类。选择题必须调 Host tools 里当前可用的那个，禁止因为「不在 Buzzy MCP tools 列表里」就改成编号纯文本。  
+**HARD — allowed-tools 分类**：`Buzzy MCP tools` 是本 MCP 服务注册的平台 tool，经 Buzzy MCP `tools/call`。`Host tools — not part of this MCP server` 是宿主内置提问 tool，**不是** Buzzy MCP tool，也不走 `load_workflow` / ExecuteTools。Cursor 用 `AskQuestion`，Claude 用 `AskUserQuestion` / `ask_question`，Codex 用同类。选择题必须调 Host tools 里当前可用的那个，禁止因为「不在 Buzzy MCP tools 列表里」就改成编号纯文本。
 **HARD — create_project**：进入任何需要 `projectId` / `project_id` 的 Buzzy MCP tool 之前，必须先调 `create_project` 拿到真实 id。本会话只创建一次，后续全程复用。workflow tool（run_prompt / `merge_videos`）传 `projectId`；`generate_image` / `generate_video` 传 `project_id`。禁止编造 id，禁止省略，禁止因为 generate_image / generate_video 写了「可自动建项目」就跳过。`create_project` 的入参是 `name`（可读项目名），不要把 catalog 的 `name` 或 `workflow` 抄过来。`choose_skill_asset` **不需要** `projectId` / `project_id`。Host tools 开场问询 / 规格提问那一拍、以及风格卡那一拍，仍禁止同拍调 `create_project`。风格卡只调 `choose_skill_asset`。问询完成且即将调**需要项目 id** 的 Buzzy tool 时若还没有 id，必须先 `create_project`。Jump / FastForward 到更后阶段同此：还没有 id 就先创建，再调带项目字段的 tool。
 
-**HARD — 宿主提问**：等人选择或确认时，必须对 Host tools 里当前可用名字真调用一次。选项只进提问 tool 的 `options`，且**该题全部可选项必须传齐**（禁止只塞一档）。禁止用 `1.` `2.` `3.` 编号列表、bullet、`Recommended:` 前缀段落作为用户可见选项——那样写 = 本步失败，必须立刻改成真调用。assistant 正文最多一句问句或状态句，**不要复述选项**。不要自己造第 4 个 `Other` 选项：Cursor `AskQuestion` 自带 Other 自由输入。仅当 `tools/list` 里 `AskQuestion` / `ask_question` / `AskUserQuestion` 三个名字都没有时，才允许编号列表，并写明本宿主没有选择框；**规格题的编号列表必须每行列出该字段全部档位**。Cursor 有 `AskQuestion`，禁止走这条。媒体产物就绪只用 assistant 正文状态句。伪调用、编号单值、或缺档都算没发出提问。  
-**例外 — 风格库**：`choose_skill_asset` 打开风格单选控件。必传 `style_template: "ai_film"` + `title: "Styles"`。返回值（`items`）只表示控件已打开，**不是**确认。有控件 → **停住**等 `Confirmed Styles info`；禁止同拍 Host tools。无控件宿主才把 `items[].name` 塞进 Host tools。确认前禁止进 `settings`。  
+**HARD — 宿主提问**：等人选择或确认时，必须对 Host tools 里当前可用名字真调用一次。选项只进提问 tool 的 `options`，且**该题全部可选项必须传齐**（禁止只塞一档）。禁止用 `1.` `2.` `3.` 编号列表、bullet、`Recommended:` 前缀段落作为用户可见选项——那样写 = 本步失败，必须立刻改成真调用。assistant 正文最多一句问句或状态句，**不要复述选项**。不要自己造第 4 个 `Other` 选项：Cursor `AskQuestion` 自带 Other 自由输入。仅当 `tools/list` 里 `AskQuestion` / `ask_question` / `AskUserQuestion` 三个名字都没有时，才允许编号列表，并写明本宿主没有选择框；**规格题的编号列表必须每行列出该字段全部档位**。Cursor 有 `AskQuestion`，禁止走这条。媒体产物就绪只用 assistant 正文状态句。伪调用、编号单值、或缺档都算没发出提问。
+**例外 — 风格库**：`choose_skill_asset` 打开风格单选控件。必传 `style_template: "ai_film"` + `title: "Styles"`。返回值（`items`）只表示控件已打开，**不是**确认。有控件 → **停住**等 `Confirmed Styles info`；禁止同拍 Host tools。无控件宿主才把 `items[].name` 塞进 Host tools。确认前禁止进 `settings`。
 **例外 — run_prompt `content`**：剧本 Markdown 与各段 Video Prompt **必须原文贴进对话**（禁止 code fence），不受「正文最多一句」限制。禁止说 on the canvas。贴完后仍发对应 Host tools 等待提问（FastForward / AutoRun 除外）。
 
 | 何时读 | 文件 |
@@ -42,15 +42,15 @@ allowed-tools: |
 | 填 `generate_image` / `generate_video` 参数 | 本文件 §运行时填参 |
 | 跑到该步且未跳过时 | `script-prompt.md` / `assets-prompt.md` / `frames-prompt.md` / `video-prompts.md` / `clips-merge.md` |
 
-本链使用 `run_prompt`，按阶段选择以下 `prompt_key`：  
-`long_video_step1_script` / `long_video_step3_video_prompts`。  
-`long_video_step2_frames` 主路径不用。禁止用 STEP2 写成片词，禁止为出预览图去补 STEP2。  
-`long_video_step3_video_prompts` 对外仍是一次调用。Agent **必须**传 `instruction.script_markdown` + 规格（`duration_sec` / `ratio` / `model`）。**禁止**传 `frames[]`。Host 内部跑 STEP2，细镜全文零删减进 `records[]`，与这份剧本并行喂给 Gemini。写词规则是**细镜主参考、剧本辅参考**：画面先写细镜；剧本补缺口；同一事实两边否定才选边（台词→剧本，站位/运镜→细镜）。条数对不齐不失败。Gemini **只**写 `groups[]`。Host 校验该章剧本镜头行引号对白后按组拆 `items[]`。禁止挂预览图。Agent **必须**把每段 `content` 全文打印进 Chat（一段一块 `### Video Prompt {i}`）。还没打印齐 1…N = 本步未完成，禁止出片。  
+本链使用 `run_prompt`，按阶段选择以下 `prompt_key`：
+`long_video_step1_script` / `long_video_step3_video_prompts`。
+`long_video_step2_frames` 主路径不用。禁止用 STEP2 写成片词，禁止为出预览图去补 STEP2。
+`long_video_step3_video_prompts` 对外仍是一次调用。Agent **必须**传 `instruction.script_markdown` + 规格（`duration_sec` / `ratio` / `model`）。**禁止**传 `frames[]`。Host 内部跑 STEP2，细镜全文零删减进 `records[]`，与这份剧本并行喂给 Gemini。写词规则是**细镜主参考、剧本辅参考**：画面先写细镜；剧本补缺口；同一事实两边否定才选边（台词→剧本，站位/运镜→细镜）。条数对不齐不失败。Gemini **只**写 `groups[]`。Host 校验该章剧本镜头行引号对白后按组拆 `items[]`。禁止挂预览图。Agent **必须**把每段 `content` 全文打印进 Chat（一段一块 `### Video Prompt {i}`）。还没打印齐 1…N = 本步未完成，禁止出片。
 预览图是展示件，只从剧本文各章第一条镜头行出图，**不**用 `frames[].prompt`。可 Skip。进入 `frames` 时先只发预览图 `generate_image`×N（与资产图同一套：本拍禁止夹 STEP3），全部 `get_task` 终态后一次状态句，**下一拍**再调一次 STEP3。禁止 `defer_step2_thinking`。本批预览图未全部终态 → 禁止状态句、禁止芯片式提问、禁止 STEP3。
 
 禁止短路径、读其它 skill、把 YAML 当自由 prompt。禁止把 `*_SPEC` / YAML 正文贴进 `instruction`。
 
-用户可见文案 **固定 English**。禁止出现 `on the canvas`。`SessionScriptLanguage` / `user_lang` 只约束剧本可读正文、对白、分镜描述。  
+用户可见文案 **固定 English**。禁止出现 `on the canvas`。`SessionScriptLanguage` / `user_lang` 只约束剧本可读正文、对白、分镜描述。
 参考素材**一律走 URL 字段**（`image_url` / `image_urls` / `video_url` / `video_urls`，以各 tool 声明为准），适用于 `generate_image` / `generate_video` / run_prompt / `merge_videos`。**禁止传 `nodeIds`**。STEP1 必须把用户上传的参考图 / 视频放进 `image_urls` / `video_urls`（有才加）；**禁止**把风格图 URL 放进这两个字段。已绑定风格图时，`assets` 的 `generate_image` 可用 `image_urls` 只传这一张风格图。预览图不是成片参考。
 
 角色 / 道具 / 场景 / 风格板 / 预览图的 `generate_image.model` = `<available_models>` Image 表 **Nano Banana 2** 行的 `model` 列原文（`name` 只用来找行；禁止把 `Nano Banana 2` 别名、视频行、其它图片行写入）。
@@ -129,7 +129,7 @@ prompt 正文禁止写 HTTPS / `@Image` / `@Video`。
 
 ### 占位符
 
-`generate_image` / `generate_video` 的 prompt 正文只用 `<<<image_n>>>` / `<<<video_n>>>`：小写、从 `1` 起，与 `image_url(s)` / `video_url(s)` 顺序一一对应。每个占位必须写清角色。历史里若烂成 `<<>>`，按当前绑定重写成完整占位后再调用。禁止空占位。  
+`generate_image` / `generate_video` 的 prompt 正文只用 `<<<image_n>>>` / `<<<video_n>>>`：小写、从 `1` 起，与 `image_url(s)` / `video_url(s)` 顺序一一对应。每个占位必须写清角色。历史里若烂成 `<<>>`，按当前绑定重写成完整占位后再调用。禁止空占位。
 STEP3 返回的成片词若本身没有占位，成片时在词前加一行按序点名已挂图的 `<<<image_n>>>`（角色 / 道具 / 场景），再接原文 `content`，末尾 `no background music`。
 
 ### 串行
@@ -138,7 +138,7 @@ run_prompt **禁止**与 `generate_image` / `generate_video` 同拍并行。角�
 
 ### 含糊 / 纯确认
 
-**只**适用于已发出且仍有效的 **Host tools** 提问，或已打开且未确认的 `choose_skill_asset`：`nice` / 无可执行新指令 → 重发同一提问 / 同一风格卡，不要 Advance。  
+**只**适用于已发出且仍有效的 **Host tools** 提问，或已打开且未确认的 `choose_skill_asset`：`nice` / 无可执行新指令 → 重发同一提问 / 同一风格卡，不要 Advance。
 剧本后 / 资产后 / BGM 闸门上的 `continue` / `preview images` / `Merge with BGM` = 已选，必须 Advance。`Confirmed Styles info` = 风格已选，必须 Advance。
 
 ---
@@ -171,12 +171,12 @@ intent → style → settings → script → assets → frames → video_prompts
 | `clips` | 必跑才能成片 | 分段成片 | |
 | `merge` | 有分段成片则跑 | 成片（可选 BGM） | 普通模式先停 BGM 闸门；N=1 仍可走闸门 |
 
-每阶段状态：`pending` | `run` | `skip` | `provided` | `done` | `invalidated`。  
+每阶段状态：`pending` | `run` | `skip` | `provided` | `done` | `invalidated`。
 **enabled** = 不是 `skip`，且（`pending`/`run`/`invalidated` 需要执行，或 `provided` 只需绑定不再生成）。
 
-**硬底线**（不能整链跳过）：必须有故事身份（用户 brief / 自供剧本之一）；要出视频必须有 script（生成或自供）、`video_prompts`（生成或自供，且已打印齐）、以及至少一块视觉参考（角色图、场景图或用户参考图之一）。`style` **不是**成片硬底线；跳过则后面不传风格图。其它阶段都可以 skip 或 provided。  
-`style` 开场默认 **`pending`**。未决时 **enabled**，排在 `settings` 之前。普通模式必须先让用户在风格库点选（或 Skip / Provide），才能进 `settings`。  
-`assets` 开场默认 **`run`**。普通模式剧本打印后必须先出剧本后提问，禁止同轮直接成图。FastForward / AutoRun 才跳过这组提问。  
+**硬底线**（不能整链跳过）：必须有故事身份（用户 brief / 自供剧本之一）；要出视频必须有 script（生成或自供）、`video_prompts`（生成或自供，且已打印齐）、以及至少一块视觉参考（角色图、场景图或用户参考图之一）。`style` **不是**成片硬底线；跳过则后面不传风格图。其它阶段都可以 skip 或 provided。
+`style` 开场默认 **`pending`**。未决时 **enabled**，排在 `settings` 之前。普通模式必须先让用户在风格库点选（或 Skip / Provide），才能进 `settings`。
+`assets` 开场默认 **`run`**。普通模式剧本打印后必须先出剧本后提问，禁止同轮直接成图。FastForward / AutoRun 才跳过这组提问。
 `frames` 阶段：被 Skip 的只是**预览图成图**。预览图不依赖内部 `frames[]`。内部细镜由 Host 在合写里跑 STEP2。合写 instruction 必须带剧本文 + 规格，禁止传 `frames[]`。禁止挂预览图给 STEP3。
 
 ---
@@ -242,9 +242,9 @@ intent → style → settings → script → assets → frames → video_prompts
 4. 停在**已经发出且仍有效**的其它宿主提问上（规格 / 剧本后 / 资产后 / BGM / 无控件风格 fallback），等用户选择
 5. 调用平台能力，产出下一件产物或下一轮宿主提问（仅当 1–4 都不适用）
 
-禁止空回复且无任何能力调用、也无宿主提问、也未贴出必打的剧本文 / Video Prompt、也未打开风格控件——**但**开场问询 / 其它 Host tools 题已经发出、或 `choose_skill_asset` 已打开且用户尚未确认时，**停住且不再调任何 tool 是正确终点**。伪调用文本已写出但没有真调用 → 重发真调用。  
-能力返回后的 continuation 必须 Advance，不需要用户再发一句——**例外**：① Host tools 已发出、用户尚未作答；② `choose_skill_asset` 返回只表示控件已打开，不要 Advance 到 `settings`。`generate_image / generate_video` 返回 `task_id` 必须先 `get_task` 到终态再 Advance。  
-缺必填输入 → 问清楚（一题宿主提问），不要空转。  
+禁止空回复且无任何能力调用、也无宿主提问、也未贴出必打的剧本文 / Video Prompt、也未打开风格控件——**但**开场问询 / 其它 Host tools 题已经发出、或 `choose_skill_asset` 已打开且用户尚未确认时，**停住且不再调任何 tool 是正确终点**。伪调用文本已写出但没有真调用 → 重发真调用。
+能力返回后的 continuation 必须 Advance，不需要用户再发一句——**例外**：① Host tools 已发出、用户尚未作答；② `choose_skill_asset` 返回只表示控件已打开，不要 Advance 到 `settings`。`generate_image / generate_video` 返回 `task_id` 必须先 `get_task` 到终态再 Advance。
+缺必填输入 → 问清楚（一题宿主提问），不要空转。
 阶段被 Skip / 已 Provided → **同轮或同一次 continuation** 进入下一 enabled 阶段。
 
 ---
@@ -259,13 +259,13 @@ intent → style → settings → script → assets → frames → video_prompts
 - 普通模式且该阶段有用户可见产物、且不在 FastForward / AutoRun 中 → 按 §双通道文案发等待提问（主路径 = 下一 enabled 阶段），**停住**
 - FastForward / AutoRun 中 → 不发中间等待提问，继续直到目标
 
-过渡态（规格刚写入 / 仅内部 `frames[]` 齐 / 资产决策已拍板但图未发）**禁止停驻**。  
-`IntentDone=true` 且 `style` 仍 `pending`、风格卡未出 → **必须停**。同轮只调 `choose_skill_asset(style_template: "ai_film", title: "Styles")`。**禁止**同轮出规格提问。  
-`choose_skill_asset` 刚返回 **必须停驻**，不是过渡态。无控件宿主才同拍把 `items[].name` 塞进 Host tools。  
-`script` 刚打印、普通模式、`ScriptAssetsGateDone=false` → **必须停**。同轮只贴剧本文 + 推剧本后提问。禁止 `generate_image`。  
-`ScriptAssetsGateDone=true` 且 `assets` 仍是 `run`、图未发 → 立刻成图。正文 `Generating character and background images.` 禁止再推这组提问。本批全部 `get_task` 终态后一次状态句 + 资产后三选项。  
-`assets` 成图刚齐、用户还没点资产后提问（普通模式）→ **必须停**。**禁止**读 `frames-prompt.md` / `video-prompts.md`，**禁止**预览图 `generate_image`，**禁止** `long_video_step3_video_prompts`。  
-进入 `frames`（仅用户点了 `preview images` / `Continue to preview images`，或 FastForward）→ **先出图，再合写**：成图未发则本拍只发预览图 `generate_image`×N + 各 `get_task`。正文 `Generating preview images.` **禁止**夹 STEP3。本批未齐 → 禁止 STEP3。齐了一次状态句，下一拍只调一次 STEP3（正文 `Generating video prompts.`）。Skip 成图或图已齐、还没有打印齐 `Video Prompt {i}` → 本拍只调 STEP3。已打印任一 `Video Prompt {i}` → **禁止**再调 STEP3。失败章等这批 `get_task` 后再补，禁止为补图重开合写。还没打印这些词 → 禁止成片。  
+过渡态（规格刚写入 / 仅内部 `frames[]` 齐 / 资产决策已拍板但图未发）**禁止停驻**。
+`IntentDone=true` 且 `style` 仍 `pending`、风格卡未出 → **必须停**。同轮只调 `choose_skill_asset(style_template: "ai_film", title: "Styles")`。**禁止**同轮出规格提问。
+`choose_skill_asset` 刚返回 **必须停驻**，不是过渡态。无控件宿主才同拍把 `items[].name` 塞进 Host tools。
+`script` 刚打印、普通模式、`ScriptAssetsGateDone=false` → **必须停**。同轮只贴剧本文 + 推剧本后提问。禁止 `generate_image`。
+`ScriptAssetsGateDone=true` 且 `assets` 仍是 `run`、图未发 → 立刻成图。正文 `Generating character and background images.` 禁止再推这组提问。本批全部 `get_task` 终态后一次状态句 + 资产后三选项。
+`assets` 成图刚齐、用户还没点资产后提问（普通模式）→ **必须停**。**禁止**读 `frames-prompt.md` / `video-prompts.md`，**禁止**预览图 `generate_image`，**禁止** `long_video_step3_video_prompts`。
+进入 `frames`（仅用户点了 `preview images` / `Continue to preview images`，或 FastForward）→ **先出图，再合写**：成图未发则本拍只发预览图 `generate_image`×N + 各 `get_task`。正文 `Generating preview images.` **禁止**夹 STEP3。本批未齐 → 禁止 STEP3。齐了一次状态句，下一拍只调一次 STEP3（正文 `Generating video prompts.`）。Skip 成图或图已齐、还没有打印齐 `Video Prompt {i}` → 本拍只调 STEP3。已打印任一 `Video Prompt {i}` → **禁止**再调 STEP3。失败章等这批 `get_task` 后再补，禁止为补图重开合写。还没打印这些词 → 禁止成片。
 `video_prompts` 已齐 → **先**把全部 `Video Prompt {i}` 正文打印进 Chat。FastForward 到 `clips` 也一样：本拍只打印，**下一拍**再成片。禁止同拍出片，禁止只把词留在内存不打印。
 
 ---
@@ -302,7 +302,7 @@ intent → style → settings → script → assets → frames → video_prompts
 
 ## 阶段目的（该跑时才读对应 reference）
 
-链隔离：`AiStoryActive` 为真时只按本文件。启动：`/ai-story`、`ai-story`、长视频、微电影、cinematic short、跳步 / 自供 / 回退式长视频，或本链已有入口 / 问询 / 相位。  
+链隔离：`AiStoryActive` 为真时只按本文件。启动：`/ai-story`、`ai-story`、长视频、微电影、cinematic short、跳步 / 自供 / 回退式长视频，或本链已有入口 / 问询 / 相位。
 状态从 history 每轮重推。禁止拿 `ugc-ads` / `tvc-ads` / `ai-animation` / `cinematic` / `3d-cgi` / `long-video` generic_agent 正文跑本链。
 
 ### `style`
@@ -318,8 +318,8 @@ intent → style → settings → script → assets → frames → video_prompts
 
 ### `settings`
 
-前置：`IntentDone=true`，且 `style` 已是 `done` / `provided` / `skip`。  
-一次 Host tools（能一次提多题就一次提完）。标题 `Set up your Video Settings`。assistant 正文最多一句：`Please configure your target video specs before we generate the script storyboard.`  
+前置：`IntentDone=true`，且 `style` 已是 `done` / `provided` / `skip`。
+一次 Host tools（能一次提多题就一次提完）。标题 `Set up your Video Settings`。assistant 正文最多一句：`Please configure your target video specs before we generate the script storyboard.`
 **禁止**再放 `resolution`。禁止加第 4 项。禁止把 `"Custom"` 写进时长 `options`（手填走 Other）。
 
 **固定三项、顺序 HARD**（每题 options 必须传齐）：
@@ -347,16 +347,16 @@ intent → style → settings → script → assets → frames → video_prompts
 
 未选则 `VIDEO_MODEL=MiniMax-H3`。确认或 FastForward **当下**就必须完成这张映射，再进 `script`。`generate_video.model`、STEP1 `instruction.model`、STEP3 `instruction.model` 都用这个 API id。缺 `instruction.model` = 本步失败。
 
-**HARD — 确认即离开，禁止循环重推**：回包能解析三项 → 按模型写入分辨率，立刻写入 Session，同轮进 `script`。  
-- `duration` 不在 `options`、大于 120、或大小写 `S`/`s`，只要能取出 ≥4 的整秒，都算已齐。禁止因此重推题。  
-- `model` 为上表任一显示名或旧 id 即合法。  
-- 本题 `duration` 是**成片总时长**，不是单段生成秒数。禁止用模型行 `duration(s)` 否决本题。  
-- 默认组合恒适配（H3+`768p`，其余+`720p`）。口头覆盖的分辨率不在该模型 Video 行 → 丢掉口头值，仍用默认，不要重推题。  
+**HARD — 确认即离开，禁止循环重推**：回包能解析三项 → 按模型写入分辨率，立刻写入 Session，同轮进 `script`。
+- `duration` 不在 `options`、大于 120、或大小写 `S`/`s`，只要能取出 ≥4 的整秒，都算已齐。禁止因此重推题。
+- `model` 为上表任一显示名或旧 id 即合法。
+- 本题 `duration` 是**成片总时长**，不是单段生成秒数。禁止用模型行 `duration(s)` 否决本题。
+- 默认组合恒适配（H3+`768p`，其余+`720p`）。口头覆盖的分辨率不在该模型 Video 行 → 丢掉口头值，仍用默认，不要重推题。
 用户已给齐三项 → 写入 Session 后可不再停。FastForward 且规格未齐 → 写入默认：`16:9` + `15s` + `MiniMax-H3` + `768p`。普通模式规格未齐 → 只推这三项提问，然后停。已确认过一次 → 禁止再推同一套题。
 
 ### `script`
 
-见 `script-prompt.md`。有用户剧本 → 整理成完整 Markdown 后**全文贴进 Chat**（provided）。否则 run_prompt `long_video_step1_script`（必带 `projectId`）。  
+见 `script-prompt.md`。有用户剧本 → 整理成完整 Markdown 后**全文贴进 Chat**（provided）。否则 run_prompt `long_video_step1_script`（必带 `projectId`）。
 成功**只**展示渲染后的剧本 `content`（禁止 code fence）。同一次返回的 `character_prompts` / `background_prompts` 写入内存。普通模式**不要**同拍成图：贴剧本后立刻出剧本后提问，然后停。
 
 ### `assets`
@@ -381,13 +381,13 @@ intent → style → settings → script → assets → frames → video_prompts
 
 ### `video_prompts`
 
-见 `video-prompts.md`。预览图终态后的下一拍调用，**每个 run 只调一次**。禁止和预览图同一 `tool_calls`。已经打印任一 `Video Prompt {i}` → 禁止再调。调用方输入是 `instruction` **object**：`script_markdown` + `duration_sec` / `ratio` / `model`（Modify 另加 `modify_request`）。角色 / 场景用 `image_urls`（有才加）。禁止传 `frames[]`。禁止挂预览图。禁止 `instruction` 写成散文 string。上一拍若因 `instruction must be a JSON object` 失败 → **按 object 模板重发一次**。  
+见 `video-prompts.md`。预览图终态后的下一拍调用，**每个 run 只调一次**。禁止和预览图同一 `tool_calls`。已经打印任一 `Video Prompt {i}` → 禁止再调。调用方输入是 `instruction` **object**：`script_markdown` + `duration_sec` / `ratio` / `model`（Modify 另加 `modify_request`）。角色 / 场景用 `image_urls`（有才加）。禁止传 `frames[]`。禁止挂预览图。禁止 `instruction` 写成散文 string。上一拍若因 `instruction must be a JSON object` 失败 → **按 object 模板重发一次**。
 成功：`result.items` 一段一项，`name`=`title`=`Video Prompt {i}`，`content` = 该段词。同一 continuation **立刻全文打印**每一段。没打印齐 = 本步失败，禁止出片。成片时 `generate_video.prompt` = 该段已打印 `content`（按 §占位符补 `<<<image_n>>>`），不要只挂 URL 不写词。
 
 ### `clips` / `merge`
 
-见 `clips-merge.md`。每组一段新片子（`VIDEO_MODEL`），title = `Long Video {i}`。**同一拍最多 4 段** `generate_video`，其余等这批 `get_task` 终态再发。回包 `Concurrent execution detected` / `9002` / `5003` → 只重试失败段。禁止一次打满十几段。禁止把 BGM 写进 `Video Prompt {i}`，禁止对单段配乐。  
-普通模式：全部分段成功后推 **BGM 闸门**并停住。选项固定 `["Merge with BGM", "Merge without BGM"]`，引导 = `Sure, would you like to add BGM?` 用户选定后再调一次 `merge_videos`（with → `is_generate_bgm=true` / without → `false`），挂各段成片 URL。  
+见 `clips-merge.md`。每组一段新片子（`VIDEO_MODEL`），title = `Long Video {i}`。**同一拍最多 4 段** `generate_video`，其余等这批 `get_task` 终态再发。回包 `Concurrent execution detected` / `9002` / `5003` → 只重试失败段。禁止一次打满十几段。禁止把 BGM 写进 `Video Prompt {i}`，禁止对单段配乐。
+普通模式：全部分段成功后推 **BGM 闸门**并停住。选项固定 `["Merge with BGM", "Merge without BGM"]`，引导 = `Sure, would you like to add BGM?` 用户选定后再调一次 `merge_videos`（with → `is_generate_bgm=true` / without → `false`），挂各段成片 URL。
 FastForward / AutoRun 到 merge 且未点名 BGM → 无 BGM 合成。N=1 仍可走 BGM 闸门（单段配乐）。Skip(`merge`) → 以分段成片为结束态。
 
 ---
@@ -411,8 +411,8 @@ FastForward / AutoRun 到 merge 且未点名 BGM → 无 BGM 合成。N=1 仍可
 
 **只发其中一个时**：自动续跑只发状态句；结束态只发 `Your {ReadyNoun} is ready.`（可保留 Revise 选项，不要再写引导）；上一拍已用状态句说过则本拍只发提问。用户可见 English **禁止** `on the canvas`。
 
-选项只进 Host tools 的 `options`。禁止伪 call、编号列表、`Recommended:` 段落进 Chat。  
-开场问询**不适用**本表的 Review / NextAct 拆句：对 Host tools 真调用；问句只有那一句；3 条方向只进 `options`。  
+选项只进 Host tools 的 `options`。禁止伪 call、编号列表、`Recommended:` 段落进 Chat。
+开场问询**不适用**本表的 Review / NextAct 拆句：对 Host tools 真调用；问句只有那一句；3 条方向只进 `options`。
 风格卡 / 规格提问用各自引导，不要再套 Review 句。风格卡有控件时不要再发 Host tools。
 
 **通用提问规则**：第 1 条选项 = 下一 enabled 主路径；另给 Skip 或 Rollback 出口；只 Revise 实际存在的产物；FastForward / AutoRun 不发中间等待提问。BGM 闸门固定 `Merge with BGM` / `Merge without BGM`。剧本后提问固定两条，资产后提问固定三条，不要改成 Review then generate。结束态（合成后或跳过闸门的单段）可留 `Go to edit`，不要再写引导。

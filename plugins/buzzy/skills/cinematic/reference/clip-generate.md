@@ -1,13 +1,13 @@
 # Cinematic — 成片与合成（`clip` / `merge`）
 
-只在当前阶段恰好是 `clip`、且本 run 已具备 **已打印** `Cinematic Prompt` 时，才调用视频工具。  
-内存里有词、对话里没有对应全文 → 先补打，**本拍禁止** `generate_video`。  
-成片调用前对照 `<available_models>` 该模型 Video 行 `resolutions`（H3 = `768p` / `2k`；2.0 / 2.0 Fast / 2.5 = `480p` / `720p`，以该行原文为准）。`VIDEO_RESOLUTION` 不在该行 → **禁止** `generate_video`，告知不适配：`This resolution is not compatible with the selected model. Change the resolution or the model.` 可重推规格提问。禁止默默改档。禁止把 `Seedance 2.0` 收成 Fast。  
+只在当前阶段恰好是 `clip`、且本 run 已具备 **已打印** `Cinematic Prompt` 时，才调用视频工具。
+内存里有词、对话里没有对应全文 → 先补打，**本拍禁止** `generate_video`。
+成片调用前对照 `<available_models>` 该模型 Video 行 `resolutions`（H3 = `768p` / `2k`；2.0 / 2.0 Fast / 2.5 = `480p` / `720p`，以该行原文为准）。`VIDEO_RESOLUTION` 不在该行 → **禁止** `generate_video`，告知不适配：`This resolution is not compatible with the selected model. Change the resolution or the model.` 可重推规格提问。禁止默默改档。禁止把 `Seedance 2.0` 收成 Fast。
 默认模型：`VIDEO_MODEL`。用户显式改模型只改模型，不授权提前到本步。
 
 还没有 `projectId` → 先 `create_project`。
 
-生成一段**新片子**。不要把用户参考片当成片输入（参考片只进 `video_urls` 当运动参考）。媒体只传 URL 字段，**禁止传 `nodeIds`**。  
+生成一段**新片子**。不要把用户参考片当成片输入（参考片只进 `video_urls` 当运动参考）。媒体只传 URL 字段，**禁止传 `nodeIds`**。
 禁止再推分段确认列表。只发 `generate_video`。
 
 ## 成片输入（HARD）

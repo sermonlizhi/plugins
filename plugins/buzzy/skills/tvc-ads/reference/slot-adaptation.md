@@ -15,12 +15,12 @@ provided  →  generated(done)  →  skip 则省略该槽  →  回退到次近�
 
 ## 文本槽
 
-分镜 / 计划 / 开场视觉模板输入：有卖点正文或用户意图字段就写入；Skip 且无正文 → `(none)`。  
-`VoiceProfile` = script 阶段确定的全片统一声音身份描述；有则原样写入 plan 和每个视频片段，不按段重写。  
-`SellingPoint` = 卖点分析经对话确认后的全文（用户改了文案则以用户稿为准）；未确认不得用规格提问旧字段凑。  
+分镜 / 计划 / 开场视觉模板输入：有卖点正文或用户意图字段就写入；Skip 且无正文 → `(none)`。
+`VoiceProfile` = script 阶段确定的全片统一声音身份描述；有则原样写入 plan 和每个视频片段，不按段重写。
+`SellingPoint` = 卖点分析经对话确认后的全文（用户改了文案则以用户稿为准）；未确认不得用规格提问旧字段凑。
 有 `CharacterRole` / `VisualTone` / `ExecutionGoal` → 原样追加，供模型遵守。
 
-run_prompt 只挂商品图 URL（有才加；确认消息 / `display_product_info` 图地址）。有参考时分镜另挂参考视频 URL；无参考时不要挂虚构参考。其它素材 URL **有才加**。卖点正文 / Prompt 文本**不是**生成参考。  
+run_prompt 只挂商品图 URL（有才加；确认消息 / `display_product_info` 图地址）。有参考时分镜另挂参考视频 URL；无参考时不要挂虚构参考。其它素材 URL **有才加**。卖点正文 / Prompt 文本**不是**生成参考。
 所有生成 / 合成的参考都用确认消息、Provide、或 `get_task` 成功后的素材 URL。`merge_videos` 挂各段成片 URL。
 
 ## 视觉槽
@@ -31,8 +31,8 @@ run_prompt 只挂商品图 URL（有才加；确认消息 / `display_product_inf
 2. 角色参考（上传或成图）
 3. 产品主图
 
-`opening_visual` 未 skip 时：有参考 → 按 agent 写的 `PreviewPrompts[]` 成预览图（商品图 + 角色图，不挂分镜表）；无参考 → 按 `tvc_ads_first_frame_prompt` 返回的 `FirstFramePrompts[]` 成首帧（产品主图；分镜事实已在 Prompt 正文里）。条数 / 张数 = 合并后的 `SegmentCount`，禁止按 shot 行数出图。角色图 / Preview / 首帧 `model` = `<available_models>` Image 表 **gpt image2** 行的 `model` 列原文。  
-成片 opening：该段开场视觉 → 否则角色图 → 否则产品图。opening 已是产品图则不要再写第二个产品槽。  
+`opening_visual` 未 skip 时：有参考 → 按 agent 写的 `PreviewPrompts[]` 成预览图（商品图 + 角色图，不挂分镜表）；无参考 → 按 `tvc_ads_first_frame_prompt` 返回的 `FirstFramePrompts[]` 成首帧（产品主图；分镜事实已在 Prompt 正文里）。条数 / 张数 = 合并后的 `SegmentCount`，禁止按 shot 行数出图。角色图 / Preview / 首帧 `model` = `<available_models>` Image 表 **gpt image2** 行的 `model` 列原文。
+成片 opening：该段开场视觉 → 否则角色图 → 否则产品图。opening 已是产品图则不要再写第二个产品槽。
 成片**禁止**挂用户参考视频。
 
 连产品图都没有 → 不要硬生成开场视觉 / 成片；请用户补商品图或任意可用参考。
@@ -44,7 +44,7 @@ run_prompt 只挂商品图 URL（有才加；确认消息 / `display_product_inf
 | provided | `tvc_ads_storyboard_with_ref`（角色 Prompt 用返回的 `character_prompts`） | `tvc_ads_script_plan`（只要分段）+ agent 写 Preview Prompt | 分段预览图 |
 | skip（默认） | `tvc_ads_storyboard_no_ref` | Master 视频提示词 + `tvc_ads_first_frame_prompt` 生成首帧 Prompt | 分段首帧 |
 
-Skip 角色 / `CharacterVisualPlan=skip`：即使 with-ref 返回了 `character_prompts`，也不生成角色图；计划里 Existing Character Prompts 写 `(none)`。Jump 越过 script 且未点名保留角色图时同样 `skip`。  
+Skip 角色 / `CharacterVisualPlan=skip`：即使 with-ref 返回了 `character_prompts`，也不生成角色图；计划里 Existing Character Prompts 写 `(none)`。Jump 越过 script 且未点名保留角色图时同样 `skip`。
 禁止搜片，禁止 `tvc_ads_search_keywords`。无参考模式的首帧 Prompt 必须调用 `tvc_ads_first_frame_prompt`，禁止 agent 直接改写；禁止调用 `tvc_ads_master_first_frame_prompt`。
 
 ## 回退作废（通用）

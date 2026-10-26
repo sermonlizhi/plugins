@@ -1,7 +1,7 @@
 # AI Animation — 剧本（`script` / STEP1_SCRIPT）
 
-工具 = `run_prompt`（`prompt_key=long_video_step1_script`）。不要传顶层 `prompt` / `outputSchema` / LLM `model`。成片模型写在 `instruction.model` = `VIDEO_MODEL`。必传 `projectId`。  
-`content` = 完整渲染 Markdown 剧本（`story_markdown`）；`name` = `title`。  
+工具 = `run_prompt`（`prompt_key=long_video_step1_script`）。不要传顶层 `prompt` / `outputSchema` / LLM `model`。成片模型写在 `instruction.model` = `VIDEO_MODEL`。必传 `projectId`。
+`content` = 完整渲染 Markdown 剧本（`story_markdown`）；`name` = `title`。
 **HARD — Chat 全文**：同一 continuation 必须把 `content` **原文全文贴进对话**（禁止 code fence，禁止摘要，禁止说 on the canvas）。这是本链对「落画布文本节点」的替代。
 
 输入：用户 verbatim 需求 + 已确认 `VIDEO_RATIO` / `VIDEO_RESOLUTION` / `VIDEO_DURATION` / `VIDEO_MODEL` + 问询结论。有用户参考图 / 视频时传 `image_urls` / `video_urls`（内容参考）。**禁止传 `nodeIds`**。还没有 `projectId` 就先 `create_project`。
@@ -37,7 +37,7 @@ Agent 不要自己复述 Host thinking 进度句。
 }
 ```
 
-`duration_sec` 用数字。空槽用 `""`，不要写 `None` 散文。  
+`duration_sec` 用数字。空槽用 `""`，不要写 `None` 散文。
 若本次是 `Modify` / Rollback 重跑，同一 object 加 `"modify_request": "{user request verbatim}"`。
 
 ## 成功

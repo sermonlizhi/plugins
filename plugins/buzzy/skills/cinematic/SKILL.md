@@ -19,14 +19,14 @@ allowed-tools: |
 
 # Cinematic Clip Orchestrator
 
-本链自包含。查阅本 skill 文件只用完整前缀 `skills/cinematic/reference/`。  
-**怎么调平台能力、填哪些参数，对照各 tool 自己的声明**；本文件只写目的、产物和硬底线。  
+本链自包含。查阅本 skill 文件只用完整前缀 `skills/cinematic/reference/`。
+**怎么调平台能力、填哪些参数，对照各 tool 自己的声明**；本文件只写目的、产物和硬底线。
 本文件是编排器。成片词由 agent **按本链 reference 直接写出**，禁止发明 `prompt_key`，禁止调 run_prompt。
 
-**HARD — allowed-tools 分类**：`Buzzy MCP tools` 是本 MCP 服务注册的平台 tool，经 Buzzy MCP `tools/call`。`Host tools — not part of this MCP server` 是宿主内置提问 tool，**不是** Buzzy MCP tool，也不走 `load_workflow` / ExecuteTools。Cursor 用 `AskQuestion`，Claude 用 `AskUserQuestion` / `ask_question`，Codex 用同类。选择题必须调 Host tools 里当前可用的那个，禁止因为「不在 Buzzy MCP tools 列表里」就改成编号纯文本。  
+**HARD — allowed-tools 分类**：`Buzzy MCP tools` 是本 MCP 服务注册的平台 tool，经 Buzzy MCP `tools/call`。`Host tools — not part of this MCP server` 是宿主内置提问 tool，**不是** Buzzy MCP tool，也不走 `load_workflow` / ExecuteTools。Cursor 用 `AskQuestion`，Claude 用 `AskUserQuestion` / `ask_question`，Codex 用同类。选择题必须调 Host tools 里当前可用的那个，禁止因为「不在 Buzzy MCP tools 列表里」就改成编号纯文本。
 **HARD — create_project**：进入任何需要 `projectId` / `project_id` 的 Buzzy MCP tool 之前，必须先调 `create_project` 拿到真实 id。本会话只创建一次，后续全程复用。`merge_videos` 传 `projectId`；`generate_video` 传 `project_id`。禁止编造 id，禁止省略，禁止因为 generate_image / generate_video 写了「可自动建项目」就跳过。`create_project` 的入参是 `name`（可读项目名），不要把 catalog 的 `name` 或 `workflow` 抄过来。Host tools 开场问询 / 规格提问那一拍仍禁止同拍调 `create_project`。问询完成且即将调**需要项目 id** 的 Buzzy tool 时若还没有 id，必须先 `create_project`。Jump / FastForward 到更后阶段同此。
 
-**HARD — 宿主提问**：等人选择或确认时，必须对 Host tools 里当前可用名字真调用一次。选项只进提问 tool 的 `options`，且**该题全部可选项必须传齐**（禁止只塞一档）。禁止用 `1.` `2.` `3.` 编号列表、bullet、`Recommended:` 前缀段落作为用户可见选项——那样写 = 本步失败，必须立刻改成真调用。assistant 正文最多一句问句或状态句，**不要复述选项**。不要自己造第 4 个 `Other` 选项：Cursor `AskQuestion` 自带 Other 自由输入。仅当 `tools/list` 里 `AskQuestion` / `ask_question` / `AskUserQuestion` 三个名字都没有时，才允许编号列表，并写明本宿主没有选择框；**规格题的编号列表必须每行列出该字段全部档位**。Cursor 有 `AskQuestion`，禁止走这条。媒体产物就绪只用 assistant 正文状态句。伪调用、编号单值、或缺档都算没发出提问。  
+**HARD — 宿主提问**：等人选择或确认时，必须对 Host tools 里当前可用名字真调用一次。选项只进提问 tool 的 `options`，且**该题全部可选项必须传齐**（禁止只塞一档）。禁止用 `1.` `2.` `3.` 编号列表、bullet、`Recommended:` 前缀段落作为用户可见选项——那样写 = 本步失败，必须立刻改成真调用。assistant 正文最多一句问句或状态句，**不要复述选项**。不要自己造第 4 个 `Other` 选项：Cursor `AskQuestion` 自带 Other 自由输入。仅当 `tools/list` 里 `AskQuestion` / `ask_question` / `AskUserQuestion` 三个名字都没有时，才允许编号列表，并写明本宿主没有选择框；**规格题的编号列表必须每行列出该字段全部档位**。Cursor 有 `AskQuestion`，禁止走这条。媒体产物就绪只用 assistant 正文状态句。伪调用、编号单值、或缺档都算没发出提问。
 **例外 — 成片词 `content`**：结构化 cinematic prompt **必须原文贴进对话**（禁止 code fence），不受「正文最多一句」限制。禁止说 on the canvas。贴完后仍发对应 Host tools 等待提问（FastForward / AutoRun 除外）。
 
 | 何时读 | 文件 |
@@ -40,7 +40,7 @@ allowed-tools: |
 
 禁止短路径、读其它 skill、把 YAML 当自由 prompt。禁止发明 `prompt_key`。禁止 Higgsfield / `@material[name]`。
 
-用户可见文案 **固定 English**。禁止出现 `on the canvas`。`SessionScriptLanguage` / `user_lang` 只约束对白与可读场景描述。  
+用户可见文案 **固定 English**。禁止出现 `on the canvas`。`SessionScriptLanguage` / `user_lang` 只约束对白与可读场景描述。
 参考素材**一律走 URL 字段**（`image_url` / `image_urls` / `video_url` / `video_urls`，以各 tool 声明为准）。**禁止传 `nodeIds`**。用户上传的参考图 / 视频有才加；禁止编造 URL。
 
 **HARD — generate_image / generate_video 阻塞轮询**：`generate_video` 只返回 `task_id`，**不算完成**。同一 continuation 必须立刻反复调用 `get_task(task_id)`，直到终态：`TASK_STATE_PENDING` / `TASK_STATE_RUNNING` → 继续 `get_task`（禁止停住、禁止等用户下一句、禁止只写「生成中」就结束、禁止发下一阶段提问）；`TASK_STATE_SUCCEEDED` → 记下返回里的**素材 URL**，本段才算完成；失败态 → 说明失败，禁止当成功、禁止再叠一次 generate_image / generate_video。Apps widget 只展示进度，**不能**代替 `get_task`。后续 `generate_video` / `merge_videos` 都用这些 URL，**禁止**把 `node_id` 当素材入参。
@@ -102,7 +102,7 @@ prompt 正文禁止写 HTTPS / `@Image` / `@Video` / `@material[...]`。
 
 ### 占位符
 
-`generate_video` 的 prompt 正文只用 `<<<image_n>>>` / `<<<video_n>>>`：小写、从 `1` 起，与 `image_url(s)` / `video_url(s)` 顺序一一对应。每个占位必须写清角色。历史里若烂成 `<<>>` 或 Higgsfield `@material[name]`，按当前绑定重写成完整占位后再调用。禁止空占位。  
+`generate_video` 的 prompt 正文只用 `<<<image_n>>>` / `<<<video_n>>>`：小写、从 `1` 起，与 `image_url(s)` / `video_url(s)` 顺序一一对应。每个占位必须写清角色。历史里若烂成 `<<>>` 或 Higgsfield `@material[name]`，按当前绑定重写成完整占位后再调用。禁止空占位。
 写成片词时若本身没有占位而本片挂了图 / 参考视频，在词前加一行按序点名 `<<<image_n>>>` / `<<<video_n>>>`，再接原文，末尾 `no background music`。
 
 ### 串行
@@ -111,7 +111,7 @@ prompt 正文禁止写 HTTPS / `@Image` / `@Video` / `@material[...]`。
 
 ### 含糊 / 纯确认
 
-**只**适用于已发出且仍有效的 **Host tools** 提问：`nice` / 无可执行新指令 → 重发同一提问，不要 Advance。  
+**只**适用于已发出且仍有效的 **Host tools** 提问：`nice` / 无可执行新指令 → 重发同一提问，不要 Advance。
 词后 / BGM 闸门上的 `continue` / `Generate the clip` / `Merge with BGM` = 已选，必须 Advance。
 
 ---
@@ -140,10 +140,10 @@ intent → settings → prompt → clip → merge
 | `clip` | 必跑才能成片 | 单段成片 | 一张片子，4–15s |
 | `merge` | 有成片则跑 | 成片（可选 BGM） | 普通模式先停 BGM 闸门；N=1 仍走闸门 |
 
-每阶段状态：`pending` | `run` | `skip` | `provided` | `done` | `invalidated`。  
+每阶段状态：`pending` | `run` | `skip` | `provided` | `done` | `invalidated`。
 **enabled** = 不是 `skip`，且（`pending`/`run`/`invalidated` 需要执行，或 `provided` 只需绑定不再生成）。
 
-**硬底线**（不能整链跳过）：必须有镜头身份（用户 brief / 自供成片词之一）；要出视频必须有 `prompt`（生成或自供，且已打印）。参考图 / 参考视频**不是**成片硬底线；没有就纯文生视频。其它阶段都可以 skip 或 provided。  
+**硬底线**（不能整链跳过）：必须有镜头身份（用户 brief / 自供成片词之一）；要出视频必须有 `prompt`（生成或自供，且已打印）。参考图 / 参考视频**不是**成片硬底线；没有就纯文生视频。其它阶段都可以 skip 或 provided。
 `prompt` / `clip` **不能**整段 Skip 后还声称能出视频；缺硬底线就问清楚。
 
 ---
@@ -206,9 +206,9 @@ intent → settings → prompt → clip → merge
 3. 停在**已经发出且仍有效**的其它宿主提问上（规格 / 词后 / BGM），等用户选择
 4. 调用平台能力，产出下一件产物或下一轮宿主提问（仅当 1–3 都不适用）
 
-禁止空回复且无任何能力调用、也无宿主提问、也未贴出必打的成片词——**但**开场问询 / 其它 Host tools 题已经发出、用户尚未作答时，**停住且不再调任何 tool 是正确终点**。伪调用文本已写出但没有真调用 → 重发真调用。  
-能力返回后的 continuation 必须 Advance，不需要用户再发一句——**例外**：Host tools 已发出、用户尚未作答。`generate_video` 返回 `task_id` 必须先 `get_task` 到终态再 Advance。  
-缺必填输入 → 问清楚（一题宿主提问），不要空转。  
+禁止空回复且无任何能力调用、也无宿主提问、也未贴出必打的成片词——**但**开场问询 / 其它 Host tools 题已经发出、用户尚未作答时，**停住且不再调任何 tool 是正确终点**。伪调用文本已写出但没有真调用 → 重发真调用。
+能力返回后的 continuation 必须 Advance，不需要用户再发一句——**例外**：Host tools 已发出、用户尚未作答。`generate_video` 返回 `task_id` 必须先 `get_task` 到终态再 Advance。
+缺必填输入 → 问清楚（一题宿主提问），不要空转。
 阶段被 Skip / 已 Provided → **同轮或同一次 continuation** 进入下一 enabled 阶段。
 
 ---
@@ -223,9 +223,9 @@ intent → settings → prompt → clip → merge
 - 普通模式且该阶段有用户可见产物、且不在 FastForward / AutoRun 中 → 按 §双通道文案发等待提问（主路径 = 下一 enabled 阶段），**停住**
 - FastForward / AutoRun 中 → 不发中间等待提问，继续直到目标
 
-过渡态（规格刚写入 / 词已写未打印）**禁止停驻**。  
-`prompt` 刚打印、普通模式、`PromptClipGateDone=false` → **必须停**。同轮只贴词 + 推词后提问。禁止 `generate_video`。  
-`PromptClipGateDone=true` 且 `clip` 仍是 `run`、片未发 → 立刻成片。正文 `Generating the cinematic clip.` 禁止再推这组提问。  
+过渡态（规格刚写入 / 词已写未打印）**禁止停驻**。
+`prompt` 刚打印、普通模式、`PromptClipGateDone=false` → **必须停**。同轮只贴词 + 推词后提问。禁止 `generate_video`。
+`PromptClipGateDone=true` 且 `clip` 仍是 `run`、片未发 → 立刻成片。正文 `Generating the cinematic clip.` 禁止再推这组提问。
 `prompt` 已齐 → **先**把全文打印进 Chat。FastForward 到 `clip` 也一样：本拍只打印，**下一拍**再成片。禁止同拍出片，禁止只把词留在内存不打印。
 
 ---
@@ -260,13 +260,13 @@ intent → settings → prompt → clip → merge
 
 ## 阶段目的（该跑时才读对应 reference）
 
-链隔离：`CinematicActive` 为真时只按本文件。启动：`/cinematic`、cinematic、film look、movie-quality、跳步 / 自供 / 回退式电影感短镜头，或本链已有入口 / 问询 / 相位。  
+链隔离：`CinematicActive` 为真时只按本文件。启动：`/cinematic`、cinematic、film look、movie-quality、跳步 / 自供 / 回退式电影感短镜头，或本链已有入口 / 问询 / 相位。
 状态从 history 每轮重推。禁止拿 `ai-story` / `ai-animation` / `3d-cgi` / `ugc-ads` / `tvc-ads` 正文跑本链。
 
 ### `settings`
 
-前置：`IntentDone=true`。  
-一次 Host tools（能一次提多题就一次提完）。标题 `Set up your Video Settings`。assistant 正文最多一句：`Please configure your target video specs before we write the cinematic prompt.`  
+前置：`IntentDone=true`。
+一次 Host tools（能一次提多题就一次提完）。标题 `Set up your Video Settings`。assistant 正文最多一句：`Please configure your target video specs before we write the cinematic prompt.`
 **禁止**再放 `resolution`。禁止加第 4 项。禁止把 `"Custom"` 写进时长 `options`（手填走 Other）。
 
 **固定三项、顺序 HARD**（每题 options 必须传齐）：
@@ -294,16 +294,16 @@ intent → settings → prompt → clip → merge
 
 未选则 `VIDEO_MODEL=MiniMax-H3`。确认或 FastForward **当下**就必须完成这张映射，再进 `prompt`。`generate_video.model` 用这个 API id。
 
-**HARD — 确认即离开，禁止循环重推**：回包能解析三项 → 按模型写入分辨率，立刻写入 Session，同轮进 `prompt`。  
-- `duration` 不在 `options` 或大小写 `S`/`s`，只要能取出 4–15 的整秒，都算已齐。禁止因此重推题。  
-- `model` 为上表任一显示名或旧 id 即合法。  
-- 本题 `duration` 是**本片时长**，不是多段总时长。  
-- 默认组合恒适配（H3+`768p`，其余+`720p`）。口头覆盖的分辨率不在该模型 Video 行 → 丢掉口头值，仍用默认，不要重推题。  
+**HARD — 确认即离开，禁止循环重推**：回包能解析三项 → 按模型写入分辨率，立刻写入 Session，同轮进 `prompt`。
+- `duration` 不在 `options` 或大小写 `S`/`s`，只要能取出 4–15 的整秒，都算已齐。禁止因此重推题。
+- `model` 为上表任一显示名或旧 id 即合法。
+- 本题 `duration` 是**本片时长**，不是多段总时长。
+- 默认组合恒适配（H3+`768p`，其余+`720p`）。口头覆盖的分辨率不在该模型 Video 行 → 丢掉口头值，仍用默认，不要重推题。
 用户已给齐三项 → 写入 Session 后可不再停。FastForward 且规格未齐 → 写入默认：`16:9` + `8s` + `MiniMax-H3` + `768p`。普通模式规格未齐 → 只推这三项提问，然后停。已确认过一次 → 禁止再推同一套题。
 
 ### `prompt`
 
-见 `prompt-write.md`。有用户成片词 → 整理成完整结构化词后**全文贴进 Chat**（provided）。否则 agent 按 `prompt-write.md` + 按需知识库**直接写出**，禁止调 run_prompt。  
+见 `prompt-write.md`。有用户成片词 → 整理成完整结构化词后**全文贴进 Chat**（provided）。否则 agent 按 `prompt-write.md` + 按需知识库**直接写出**，禁止调 run_prompt。
 成功**只**展示渲染后的词（禁止 code fence）。普通模式贴词后立刻出词后提问，然后停。
 
 - **HARD — 词后提问**（普通模式，`PromptClipGateDone=false`）：正文可空。同轮 Host tools：引导 `Modify the cinematic prompt, or generate the clip?`。`options` 必须恰好这 2 条，顺序固定：
@@ -312,8 +312,8 @@ intent → settings → prompt → clip → merge
 
 ### `clip` / `merge`
 
-见 `clip-generate.md`。一段新片子（`VIDEO_MODEL`），title = `Cinematic Clip`。禁止把 BGM 写进 cinematic prompt，禁止对单段配乐。  
-普通模式：成片成功后推 **BGM 闸门**并停住。选项固定 `["Merge with BGM", "Merge without BGM"]`，引导 = `Sure, would you like to add BGM?` 用户选定后再调一次 `merge_videos`（with → `is_generate_bgm=true` / without → `false`），挂该段成片 URL。  
+见 `clip-generate.md`。一段新片子（`VIDEO_MODEL`），title = `Cinematic Clip`。禁止把 BGM 写进 cinematic prompt，禁止对单段配乐。
+普通模式：成片成功后推 **BGM 闸门**并停住。选项固定 `["Merge with BGM", "Merge without BGM"]`，引导 = `Sure, would you like to add BGM?` 用户选定后再调一次 `merge_videos`（with → `is_generate_bgm=true` / without → `false`），挂该段成片 URL。
 FastForward / AutoRun 到 merge 且未点名 BGM → 无 BGM 合成。N=1 仍可走 BGM 闸门（单段配乐）。Skip(`merge`) → 以分段成片为结束态。
 
 ---
@@ -337,8 +337,8 @@ FastForward / AutoRun 到 merge 且未点名 BGM → 无 BGM 合成。N=1 仍可
 
 **只发其中一个时**：自动续跑只发状态句；结束态只发 `Your {ReadyNoun} is ready.`（可保留 Revise 选项，不要再写引导）；上一拍已用状态句说过则本拍只发提问。用户可见 English **禁止** `on the canvas`。
 
-选项只进 Host tools 的 `options`。禁止伪 call、编号列表、`Recommended:` 段落进 Chat。  
-开场问询**不适用**本表的 Review / NextAct 拆句：对 Host tools 真调用；问句只有那一句；3 条方向只进 `options`。  
+选项只进 Host tools 的 `options`。禁止伪 call、编号列表、`Recommended:` 段落进 Chat。
+开场问询**不适用**本表的 Review / NextAct 拆句：对 Host tools 真调用；问句只有那一句；3 条方向只进 `options`。
 规格提问用各自引导，不要再套 Review 句。
 
 **通用提问规则**：第 1 条选项 = 下一 enabled 主路径；另给 Skip 或 Rollback 出口；只 Revise 实际存在的产物；FastForward / AutoRun 不发中间等待提问。BGM 闸门固定 `Merge with BGM` / `Merge without BGM`。词后提问固定两条，不要改成 Review then generate。结束态（合成后或跳过闸门的单段）可留 `Go to edit`，不要再写引导。

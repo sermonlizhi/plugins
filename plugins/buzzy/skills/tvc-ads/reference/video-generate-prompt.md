@@ -1,10 +1,10 @@
 # TVC ADS — 分段成片
 
-每段生成一段**新片子**。不要把参考视频当成片输入。  
-**HARD — 成片单元是 segment，不是 shot**：`N` = `plan` 校验通过后的 `SegmentCount`。成片正文使用计划阶段留下的分段内容，按本文「紧凑镜头时间线（Compact Shot Timeline）」格式注入，严禁把包含 `| --- |` 的原始 Markdown 管道表格或冗余元数据列原样粘入 Prompt。禁止按分镜表每一行、每一张 Chat 卡片、或某一个 2s/3s shot `Duration` 调一次 `generate_video`。还没有通过 `plan-and-opening.md` §Shot ≠ Segment 的进入前校验 → 先本地重切或重跑计划，禁止直接成片。媒体**只传 URL 字段**（`image_url` / `image_urls` / `video_url` / `video_urls`，以 tool 声明为准），数量 = 正文里实际出现的 `<<<image_n>>>` 个数。图进 image_*。**禁止传 `nodeIds`**。prompt 正文不要写 HTTPS / `@Image`。opening 规则见 `slot-adaptation.md`。声音统一规则见 `voice-direction.md` 与本文「统一声音描述」。  
-`title` = `TVC Clip {i}`；时长 = 该段 `segment_duration` / `VideoSegmentDurations[i]`（合并后的段长），**不是**分镜某一行的 Duration。  
-`generate_video.model` = `<available_models>` Video 表 **seedance-2.0-fast** 行的 `model` 列原文（`name` 只用来找行）。  
-`aspectRatio` / `resolution`：只传该行 `ratios` / `resolutions` 里的 token。`SessionRatio` / `SessionVideoResolution` 在表里就原样用；不在表里 → 该行第一个合法 token（或再问一次）。`ratios=fixed` 或 `resolutions` `-` / 空 → 对应字段整项省略。禁止写死 `720p` / `1080p`。  
+每段生成一段**新片子**。不要把参考视频当成片输入。
+**HARD — 成片单元是 segment，不是 shot**：`N` = `plan` 校验通过后的 `SegmentCount`。成片正文使用计划阶段留下的分段内容，按本文「紧凑镜头时间线（Compact Shot Timeline）」格式注入，严禁把包含 `| --- |` 的原始 Markdown 管道表格或冗余元数据列原样粘入 Prompt。禁止按分镜表每一行、每一张 Chat 卡片、或某一个 2s/3s shot `Duration` 调一次 `generate_video`。还没有通过 `plan-and-opening.md` §Shot ≠ Segment 的进入前校验 → 先本地重切或重跑计划，禁止直接成片。媒体**只传 URL 字段**（`image_url` / `image_urls` / `video_url` / `video_urls`，以 tool 声明为准），数量 = 正文里实际出现的 `<<<image_n>>>` 个数。图进 image_*。**禁止传 `nodeIds`**。prompt 正文不要写 HTTPS / `@Image`。opening 规则见 `slot-adaptation.md`。声音统一规则见 `voice-direction.md` 与本文「统一声音描述」。
+`title` = `TVC Clip {i}`；时长 = 该段 `segment_duration` / `VideoSegmentDurations[i]`（合并后的段长），**不是**分镜某一行的 Duration。
+`generate_video.model` = `<available_models>` Video 表 **seedance-2.0-fast** 行的 `model` 列原文（`name` 只用来找行）。
+`aspectRatio` / `resolution`：只传该行 `ratios` / `resolutions` 里的 token。`SessionRatio` / `SessionVideoResolution` 在表里就原样用；不在表里 → 该行第一个合法 token（或再问一次）。`ratios=fixed` 或 `resolutions` `-` / 空 → 对应字段整项省略。禁止写死 `720p` / `1080p`。
 本条只约束 `generate_video` 入参。禁止用模型表裁剪 info_card 候选项；规格题必须按 SKILL §info_card 字面量发出（画幅 4 档、分辨率 3 档）。再问一次时同样用全档，不要改成模型表子集。
 
 **HARD — 提示词长度硬限制（≤ 2000 字符）与字符预算**：平台模型对 `generate_video.prompt` 有严格的 2000 字符硬限制，**总字符数必须严格 ≤ 2000**（安全目标 ≤ 1800 字符，严禁突破 2000 字符报错）。成片提示词必须按以下预算执行：
@@ -13,7 +13,7 @@
 - 规格声明（`Follow only this segment...`）：≤ 150 字符；
 - 紧凑声音块（`VoiceProfileBlock`）：≤ 450 字符（使用高密度紧凑版，严禁长篇大论）。
 
-调度（HARD）：进入 `video` 前确认 `N = SegmentCount`（合并后的段数，不是 `ShotCount`）。先只生成 Clip 1。Clip 1 成功返回后，若平台支持独立音频参考槽则绑定其旁白音频 URL；若平台明确不支持则直接使用 fallback VoiceProfile 匹配约束，不要等待不存在的槽位。随后在**同一 action 并发**发起 Clip 2…N；后续片段仍必须逐字复用同一份 `VoiceProfile`。Clip 1 失败只重跑 Clip 1；Clip 2…N 中部分失败时只并发重跑失败段，不重跑已成功片段。N=1 时直接生成 Clip 1 并进入合成（先询问配乐）。`generate_video` 调用次数必须等于 `SegmentCount`，禁止等于分镜行数。  
+调度（HARD）：进入 `video` 前确认 `N = SegmentCount`（合并后的段数，不是 `ShotCount`）。先只生成 Clip 1。Clip 1 成功返回后，若平台支持独立音频参考槽则绑定其旁白音频 URL；若平台明确不支持则直接使用 fallback VoiceProfile 匹配约束，不要等待不存在的槽位。随后在**同一 action 并发**发起 Clip 2…N；后续片段仍必须逐字复用同一份 `VoiceProfile`。Clip 1 失败只重跑 Clip 1；Clip 2…N 中部分失败时只并发重跑失败段，不重跑已成功片段。N=1 时直接生成 Clip 1 并进入合成（先询问配乐）。`generate_video` 调用次数必须等于 `SegmentCount`，禁止等于分镜行数。
 **HARD**：每段 `generate_video` 只返回 `task_id`。同一 continuation 必须反复 `get_task` 直到 `TASK_STATE_SUCCEEDED`（PENDING/RUNNING 就继续查；视频通常要数分钟，不要停、不要等用户下一句）。记下素材 URL。Apps widget 不能代替轮询。Clip 1 终态前禁止发 2…N。全部终态后才能发配乐提问。后续 `merge_videos` 挂各段成片 URL，**禁止传 `nodeIds`**。
 
 ## 统一声音描述（HARD — 紧凑高密度注入）
@@ -75,8 +75,8 @@ Local performance:
 | 该段用到的角色图 | 有参考且 `CharacterVisualPlan=run` 或 `provided` 时，按 `character_index` | `<<<image_n>>>` 写成 the on-screen talent |
 | Clip 1 旁白音频 | 仅 Clip 2…N，且平台提供独立音频参考槽时 | 挂 Clip 1 的音频 URL；不要把 Clip 1 画面当作后续片段的视觉参考 |
 
-opening 已经是产品图时，不要再挂第二个产品槽。  
-无开场视觉、只有产品图时，写明以产品图为起始视觉。  
+opening 已经是产品图时，不要再挂第二个产品槽。
+无开场视觉、只有产品图时，写明以产品图为起始视觉。
 **禁止**挂参考视频、分镜表、卖点正文、Prompt 文本。
 
 ## 紧凑镜头时间线（Compact Shot Timeline）
@@ -126,9 +126,9 @@ Follow only this segment. Duration {SegmentDuration}s, aspect ratio {SessionRati
 
 ## 合成
 
-普通模式：Clip 1 成功后按调度发齐后续段；全部分段 `get_task` 成功后，对 Host tools 发配乐闸门，等用户选 `No music` 或 `Add background music`。问句 = `Do you want background music in the final video?` 选项只进 `options`，禁止 Chat 编号列表。选 `No music` → 直接以原生音轨合成；选 `Add background music` → 合成时在原生音轨上叠加音乐。该选择只影响最终合成，不得反向改写任何片段音轨。  
-FastForward 到 merge → 同样先问配乐，再按选择合成。  
-`video_infos` 按片段序原样带上每段成片 URL。`merge_videos` 必须挂上**全部**分段成片 URL，禁止传 `nodeIds`。  
+普通模式：Clip 1 成功后按调度发齐后续段；全部分段 `get_task` 成功后，对 Host tools 发配乐闸门，等用户选 `No music` 或 `Add background music`。问句 = `Do you want background music in the final video?` 选项只进 `options`，禁止 Chat 编号列表。选 `No music` → 直接以原生音轨合成；选 `Add background music` → 合成时在原生音轨上叠加音乐。该选择只影响最终合成，不得反向改写任何片段音轨。
+FastForward 到 merge → 同样先问配乐，再按选择合成。
+`video_infos` 按片段序原样带上每段成片 URL。`merge_videos` 必须挂上**全部**分段成片 URL，禁止传 `nodeIds`。
 N=1 仍走配乐闸门（单段配乐）。Skip(`merge`) → 以分段成片为结束。
 
 ```text

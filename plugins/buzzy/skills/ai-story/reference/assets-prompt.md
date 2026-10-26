@@ -1,6 +1,6 @@
 # AI Story — 角色 / 场景资产（`assets` / STEP1_ASSETS）
 
-默认 `run`。普通模式必须先过剧本后提问（`ScriptAssetsGateDone=true`）才能成图。  
+默认 `run`。普通模式必须先过剧本后提问（`ScriptAssetsGateDone=true`）才能成图。
 同一 Meta-prompt（`long_video_step1_script`）带回的 `character_prompts[]` / `background_prompts[]` 是成图原料。
 
 见 `slot-adaptation.md`。
@@ -23,7 +23,7 @@
 
 正文：`Generating character and background images.`
 
-禁止空结束。禁止再推剧本后提问。本批全部 `get_task` 终态后一次状态句，禁止逐张提问。  
+禁止空结束。禁止再推剧本后提问。本批全部 `get_task` 终态后一次状态句，禁止逐张提问。
 title：人 / 动物 = `[Character] {短名}`；关键道具 = `[Prop] {短名}`；场景 = `[Background] {短名}`。`{短名}` 取 `- 名称：` / `- 场景：`。失败张：同一拍正文点名该 title。
 
 选 I'll upload **且还没有任何资产图**：立刻请用户发一张图 URL（成图前的 Provide，不是替换）。本轮消息里已经有图 → **不要再问**，按「成图前 Provide」把图绑到还没生成的槽。
@@ -80,13 +80,13 @@ title：人 / 动物 = `[Character] {短名}`；关键道具 = `[Prop] {短名}`
 - 已绑定风格图且 `style ≠ skip`：每张调用都带上这张风格参考。`image_urls` = `[StyleImageUrl]`，且只含这一张。角色 / 道具 / 背景 **同一张**风格参考，禁止背景另挂别的图。`style = skip` 或未绑定 → 不要传风格图。禁止把资产图当风格参考。成图参考图只有这张风格图；不要把开场用户上传再挂成第二张风格。
 - **HARD**：`generate_image` 只返回 `task_id`。同一 continuation 必须反复 `get_task` 直到 `TASK_STATE_SUCCEEDED`，记下素材 URL。并发多张时每个 `task_id` 都要轮询到终态。禁止把 `node_id` 当后续素材入参。
 
-同轮并发：所有角色条目 + 所有场景条目一起发。  
-有 Avatar / 用户角色图 → 跳过对应角色成图。有匹配场景图 → 跳过对应场景成图。  
+同轮并发：所有角色条目 + 所有场景条目一起发。
+有 Avatar / 用户角色图 → 跳过对应角色成图。有匹配场景图 → 跳过对应场景成图。
 用户只要「不要角色」→ 只 skip 角色槽，场景仍按当前计划。只要「不要场景」同理。
 
-成功只在正文写状态句。文案按 SKILL §双通道。  
-`title`：角色 `[Character] {短名}`，道具 `[Prop] {短名}`，场景 `[Background] {短名}`。禁止写成 `[First Frame]` / `[Preview Image]`。  
-下一 enabled 阶段通常是 `frames`。主路径选项写 `preview images`。禁止写成 generate first-frame images / generate the clips。  
+成功只在正文写状态句。文案按 SKILL §双通道。
+`title`：角色 `[Character] {短名}`，道具 `[Prop] {短名}`，场景 `[Background] {短名}`。禁止写成 `[First Frame]` / `[Preview Image]`。
+下一 enabled 阶段通常是 `frames`。主路径选项写 `preview images`。禁止写成 generate first-frame images / generate the clips。
 **HARD — 成图成功拍必须停**：本批全部终态后一次状态句 **角色/场景资产图** + 推资产后提问。禁止读 `frames-prompt.md` / `video-prompts.md`，禁止预览图 `generate_image`，禁止 `long_video_step3_video_prompts`。用户没点 `preview images` / `Continue to preview images` 之前，当「所有图片任务完成了」也不许自动进 `frames`。
 
 ## Provide / Skip / Modify
@@ -99,12 +99,12 @@ title：人 / 动物 = `[Character] {短名}`；关键道具 = `[Prop] {短名}`
 
 ## 普通模式等待面（成图之后）
 
-Host tools。引导 `Continue to preview images, regenerate the character and background images, or upload replacements?`  
+Host tools。引导 `Continue to preview images, regenerate the character and background images, or upload replacements?`
 `options` 必须恰好这 3 条，顺序固定：
 
 1. `preview images`
 2. `Regenerate character and background images`
 3. `Upload to replace character and background images`
 
-禁止第 4 条。  
+禁止第 4 条。
 点 1 / `Continue to preview images` → 进 `frames`。点 2 → 带变化句重出全部资产图。点 3 → 先点选要换的那张，再收一张 URL 替换该槽。自然语言 Skip preview images 仍按 Skip(`frames`)。

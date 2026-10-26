@@ -1,11 +1,11 @@
 # UGC ADS — 首帧正文（变槽）
 
-仅当 `first_frame` 仍 enabled 且本段需要生成首帧时使用。  
-agent **按本文件模板直接写出**各段首帧 Prompt，禁止再调 run_prompt 获取。Prompt 不进 Chat。  
-extract 仍是内存变量 `ExtractVideoContents[i-1]`，必须逐字内联。  
-媒体只挂**实际参考图**的 URL（`image_url` / `image_urls`，以 tool 声明为准），数量 = 主句里出现的 `<<<image_n>>>` 个数（1–3）。**禁止传 `nodeIds`**。prompt 正文不要写 HTTPS / `@Image`。  
-`title` = `[First Frame] Video {i}`；画幅 = `SessionRatio`。  
-`generate_image.model` = `<available_models>` Image 表 **Nano Banana 2** 行的 `model` 列原文（`name` 只用来找行）。Edit 重生成仍用该行。  
+仅当 `first_frame` 仍 enabled 且本段需要生成首帧时使用。
+agent **按本文件模板直接写出**各段首帧 Prompt，禁止再调 run_prompt 获取。Prompt 不进 Chat。
+extract 仍是内存变量 `ExtractVideoContents[i-1]`，必须逐字内联。
+媒体只挂**实际参考图**的 URL（`image_url` / `image_urls`，以 tool 声明为准），数量 = 主句里出现的 `<<<image_n>>>` 个数（1–3）。**禁止传 `nodeIds`**。prompt 正文不要写 HTTPS / `@Image`。
+`title` = `[First Frame] Video {i}`；画幅 = `SessionRatio`。
+`generate_image.model` = `<available_models>` Image 表 **Nano Banana 2** 行的 `model` 列原文（`name` 只用来找行）。Edit 重生成仍用该行。
 **HARD**：`generate_image` 只返回 `task_id`。同一 continuation 必须反复 `get_task` 直到 `TASK_STATE_SUCCEEDED`（PENDING/RUNNING 就继续查，不要停、不要等用户），记下素材 URL。并发 ×N 时每个 `task_id` 都要轮询到终态。Apps widget 不能代替轮询。后续成片的 `generate_video` 用这个 URL，禁止把 `node_id` 当素材入参。
 
 槽位来源见 `slot-adaptation.md`。按下表选 **恰好一套** 主句 + 末尾句，禁止提及不存在的槽。

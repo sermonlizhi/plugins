@@ -14,9 +14,9 @@
 
 还没有 `projectId` → 先 `create_project`。
 
-**只调用一次** `long_video_step3_video_prompts`。必传 `projectId`。  
-**禁止**先调 `long_video_step2_frames`，**禁止**把 `frames[]` 写进 `instruction`。  
-**禁止**与 `generate_image` / `generate_video` 同拍并行。  
+**只调用一次** `long_video_step3_video_prompts`。必传 `projectId`。
+**禁止**先调 `long_video_step2_frames`，**禁止**把 `frames[]` 写进 `instruction`。
+**禁止**与 `generate_image` / `generate_video` 同拍并行。
 Host 内部两步：STEP2（用 Agent 这份剧本切细镜）→ 细镜原文 + 同一份剧本一起给 STEP3。**禁止**传 `frames[]`。**不是**没跑 STEP2。中间细镜不回给 Agent。两轮 Gemini 会比较久，不要降速、不要自己串 STEP2。**禁止** `defer_step2_thinking`。Agent 不要自己复述 Host 进度句。回包**没有** `frames[]`，也没有一份总 `content`。每项必须同时有 `name` / `title` / `content`（`name`=`title`=`Video Prompt {i}`）。台词校验由 Host 做。一次返回。预览图若仍要出：先发完 `generate_image`×N 并 `get_task` 终态，**下一拍**再调本 key。禁止和预览图放进同一 `tool_calls`。已经打印任一 `Video Prompt {i}` → **禁止**再调用本 key（失败重试、补预览图、合写超时都不构成第二次调用）。第一次失败且一段都没打印 → 只允许再调一次，正文 `Retrying video prompts.`
 
 - 禁止顶层 `prompt` / `outputSchema` / LLM `model` / `texts`。`instruction.model` **必填** = `VIDEO_MODEL`（API id），不是这条禁令。
@@ -44,11 +44,11 @@ image_urls = ["https://..."]
 }
 ```
 
-`script_markdown` 用已确认的剧本文。角色 / 场景用 `image_urls`（有才加）。  
-若本次是 `Modify` / Rollback，同一 object 上加 `"modify_request": "{user request verbatim}"`。禁止传 `frames[]`。  
+`script_markdown` 用已确认的剧本文。角色 / 场景用 `image_urls`（有才加）。
+若本次是 `Modify` / Rollback，同一 object 上加 `"modify_request": "{user request verbatim}"`。禁止传 `frames[]`。
 **禁止** `defer_step2_thinking`。
 
-内存已有 N 段已打印的 `Video Prompt {i}`（刚合并写完，本步只是 Advance）→ **不要再调 LLM**，只确认这些词已打印；缺哪个就补打缺的，禁止重开写作。  
+内存已有 N 段已打印的 `Video Prompt {i}`（刚合并写完，本步只是 Advance）→ **不要再调 LLM**，只确认这些词已打印；缺哪个就补打缺的，禁止重开写作。
 预览图缺了走 `frames-prompt.md`（从剧本出图），不要再调本 key，不要调 STEP2。预览图失败不得重跑本步。
 
 ## 成功（分段打印 HARD）
@@ -83,5 +83,5 @@ image_urls = ["https://..."]
 
 ## 普通模式等待面
 
-同轮 Host tools。第 1 选项 = generate the clips（**仅当**已打印全部 `Video Prompt {i}`）。另给 Modify。不要在点 Continue / Jump 之前调用视频工具。  
+同轮 Host tools。第 1 选项 = generate the clips（**仅当**已打印全部 `Video Prompt {i}`）。另给 Modify。不要在点 Continue / Jump 之前调用视频工具。
 分段词已打印时，预览图等待面也不得再推 generate video prompts / `preview images`。预览图还在补失败章 → 先打印各 `Video Prompt {i}`，不挡成片提问。还没打印这些词 → 先打印，不要出片。

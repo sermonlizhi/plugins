@@ -42,10 +42,10 @@ Here is the cinematic prompt:
 {full structured prompt}
 ```
 
-可附 `Your cinematic prompt is ready.`  
+可附 `Your cinematic prompt is ready.`
 禁止 code fence。打印后 `PromptGenerated = true`，写入内存 `CinematicPromptText`。
 
-普通模式：打印后立刻出词后提问（见 SKILL §`prompt`），然后停。  
+普通模式：打印后立刻出词后提问（见 SKILL §`prompt`），然后停。
 FastForward：本拍只打印，**下一拍**再 `generate_video`。
 
 已经打印过一份词 → **禁止**无故重写。Modify / Rollback(`prompt`) 才按用户说明改写后重打。只点修改没写要改什么 → 停着问要改哪。
